@@ -860,6 +860,7 @@ bool m4::smash(char dir) {
 			}
 		default:
 			return false;
+	}
 }
 
 bool m4::smash(int i, int j, int k, int h, char dir) {
@@ -930,6 +931,7 @@ bool m4::smash(int i, int j, int k, int h, char dir) {
 			}
 		default:
 			return false;
+	}
 }
 
 ////////////////////////////////
@@ -955,7 +957,7 @@ int m4::rec_depth_solve (void)
 		// move forward
 		x--;
 		// recusrive call
-		int c = rec_solve();
+		int c = rec_depth_solve();
 		// move back
 		x++;
 		// if goal found, regress
@@ -969,7 +971,7 @@ int m4::rec_depth_solve (void)
 		// move
 		x++;
 		// recusrive call
-		int c = rec_solve();
+		int c = rec_depth_solve();
 		// move back
 		x--;
 		// if goal found, regress
@@ -983,7 +985,7 @@ int m4::rec_depth_solve (void)
 		// move
 		y--;
 		// recusrive call
-		int c = rec_solve();
+		int c = rec_depth_solve();
 		// move back
 		y++;
 		// if goal found, regress
@@ -997,7 +999,7 @@ int m4::rec_depth_solve (void)
 		// move
 		y++;
 		// recusrive call
-		int c = rec_solve();
+		int c = rec_depth_solve();
 		// move back
 		y--;
 		// if goal found, regress
@@ -1011,7 +1013,7 @@ int m4::rec_depth_solve (void)
 		// move
 		z--;
 		// recusrive call
-		int c = rec_solve();
+		int c = rec_depth_solve();
 		// move back
 		z++;
 		// if goal found, regress
@@ -1025,7 +1027,7 @@ int m4::rec_depth_solve (void)
 		// move
 		z++;
 		// recusrive call
-		int c = rec_solve();
+		int c = rec_depth_solve();
 		// move back
 		z--;
 		// if goal found, regress
@@ -1039,7 +1041,7 @@ int m4::rec_depth_solve (void)
 		// move
 		w--;
 		// recusrive call
-		int c = rec_solve();
+		int c = rec_depth_solve();
 		// move back
 		w++;
 		// if goal found, regress
@@ -1053,7 +1055,7 @@ int m4::rec_depth_solve (void)
 		// move
 		w++;
 		// recusrive call
-		int c = rec_solve();
+		int c = rec_depth_solve();
 		// move back
 		w--;
 		// if goal found, regress
@@ -1063,6 +1065,11 @@ int m4::rec_depth_solve (void)
 	}
 	
 	// failed
+	return -1;
+}
+
+int rec_breadth_solve (void)
+{
 	return -1;
 }
 

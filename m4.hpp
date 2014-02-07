@@ -72,6 +72,7 @@ class m4 {
 		// random, returns solvability
 		void random (void);
 		int rec_depth_solve (void);
+		int rec_breadth_solve (void);
 		
 };
 

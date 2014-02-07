@@ -10,7 +10,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
-#include "m4.cpp"
+#include "m4.hpp"
 
 int main (void)
 {
