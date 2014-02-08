@@ -1,3 +1,11 @@
-n-dimensional maze game
+N-Dimensional Maze Game
+By Geoffrey Card
 
+Current version is limited to 4D.
+Generates a 4D array representing a Euclidean, spatial, 4D maze. The rest is straight-forward, err, well, it would be, except that it's a maze.
 
+TO DO:
+- breadth-first solver*
+- 1D, 2D*, 3D*
+- 3D graphics*
+* Already implemented elsewhere
