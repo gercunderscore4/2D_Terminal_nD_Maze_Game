@@ -53,6 +53,7 @@ class m4 {
 		bool control (void);
 
 		// checks
+		bool inline valid (void);
 		bool inline valid (int i, int j, int k, int h);
 		void inline set_flag (char flag);
 		void inline set_flag (int i, int j, int k, int h, char flag);
@@ -67,13 +68,16 @@ class m4 {
 		// HULK SMASH!
 		bool smash (char dir);
 		bool smash (int i, int j, int k, int h, char dir);
-		
-		// maze algorithms
-		// random, returns solvability
-		void random (void);
+
+		// solvers
 		int rec_depth_solve (void);
 		int rec_breadth_solve (void);
 		
+		// maze algorithms
+		// random, returns solvability
+		void random_build (void);
+		void depth_build();
+		void rec_depth_build();
 };
 
 #endif // M4_H_
