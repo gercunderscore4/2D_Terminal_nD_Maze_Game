@@ -8,11 +8,11 @@
 
 #include "m4.hpp"
 
-#define CLR_LEN 200
+#define CLR_LEN 100
 
 // all tiles must be equal size
 #define SPACE "  "
-#define WALL  "██"
+#define WALL  "▓▓"
 #define USER  "[]"
 #define GOAL  "()"
 #define HSKIP "  "
@@ -44,22 +44,18 @@
 #define ZP 'e'
 #define WM 'z'
 #define WP 'c'
+#define DIRS 8
 
 void m4::test (void)
 {
-	//get_size();
-	lenx=2,leny=2,lenz=2,lenw=2;
-	int c = -1;
-	gen();
-	while (c < 0) {
-		random();
-		c = rec_depth_solve();
-		//print_all();
-		//printf("%i %i %i %i\n%i\n",x,y,z,w,c);
-		//getchar();
+	while (true) {
+		//lenx=3,leny=4,lenz=2,lenw=2; // for testing
+		get_size();
+		gen();
+		depth_build();
+		control();
+		degen();
 	}
-	control();
-	degen();
 }
 
 ////////////////////////////////
@@ -390,8 +386,7 @@ void m4::print_clr (void)
 void m4::print_man (void)
 {
 	printf(
-	    "  axes: \n"
-		"  \n"
+		"  axes: \n"
 		"  +---------------------Z \n"
 		"  |                       \n"
 		"  |  +----X     +----X    \n"
@@ -655,6 +650,11 @@ bool m4::control (void)
 ////////////////////////////////
 //          checks            //
 ////////////////////////////////
+
+bool inline m4::valid (void)
+{
+	return 0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw ? true : false; 
+}
 
 bool inline m4::valid (int i, int j, int k, int h)
 {
@@ -1077,10 +1077,10 @@ int rec_breadth_solve (void)
 //     maze algorithms        //
 ////////////////////////////////
 
-void m4::random (void)
+void m4::random_build (void)
 {
+	// completely random
 	empty();
-	// even if it's just random
 	for (int i = 0; i < lenx; i++) {
 		for (int j = 0; j < leny; j++) {
 			for (int k = 0; k < lenz; k++) {
@@ -1094,6 +1094,19 @@ void m4::random (void)
 		}
 	}
 	frame();
+
+	// when you get a breadth-first solver, implement this
+	/*
+	int c = -1;
+	while (c < 0) {
+		random_build();
+		c = rec_depth_solve();
+		//print_all();
+		//printf("%i %i %i %i\n%i\n",x,y,z,w,c);
+		//getchar();
+	}
+	*/
+
 	// start
 	x=0, y=0, z=0, w=0;
 	// goal
@@ -1102,6 +1115,222 @@ void m4::random (void)
 }
 
 ////////////////////////////////
-// END M4.CPP
+//        depth-first         //
 ////////////////////////////////
 
+void m4::depth_build (void)
+{
+	// build walls
+	cage();
+	// if position not valid, move to origin
+	if (!valid()) x=0,y=0,z=0,w=0;
+	// smashy-smashy
+	rec_depth_build();
+	gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
+	set_flag(gx,gy,gz,gw,F_GOAL);
+}
+
+// set to valid position before
+void m4::rec_depth_build (void)
+{
+	// assume current position is valid
+
+	// mark as visited
+	set_flag(x,y,z,w,F_TEMP);
+	
+	//print_all();
+	//printf("%i %i %i %i\n",x,y,z,w);
+	//getchar();
+	
+	char dirs[] = {XM,XP,YM,YP,ZM,ZP,WM,WP};
+	int ind = 0;
+	char dir = 0;
+	for (int n = DIRS; n > 0; n--) {
+		ind = rand() % n;
+		dir = dirs[ind];
+		
+		// XD
+		// if node is available and wall can be smashed
+		if (dir==XM && valid(x-1,y,z,w) && !has_flag(x-1,y,z,w,F_TEMP) && smash(XM)) {
+			// move forward
+			x--;
+			// recusrive call
+			//printf("XD\n");
+			rec_depth_build();
+			// move back
+			x++;
+		}
+		
+		// XU
+		// if node is available and wall can be smashed
+		if (dir==XP && valid(x+1,y,z,w) && !has_flag(x+1,y,z,w,F_TEMP) && smash(XP)) {
+			// move forward
+			x++;
+			// recusrive call
+			//printf("XU\n");
+			rec_depth_build();
+			// move back
+			x--;
+		}
+		
+		// YD
+		// if node is available and wall can be smashed
+		if (dir==YM && valid(x,y-1,z,w) && !has_flag(x,y-1,z,w,F_TEMP) && smash(YM)) {
+			// move forward
+			y--;
+			// recusrive call
+			//printf("YD\n");
+			rec_depth_build();
+			// move back
+			y++;
+		}
+		
+		// YU
+		// if node is available and wall can be smashed
+		if (dir==YP && valid(x,y+1,z,w) && !has_flag(x,y+1,z,w,F_TEMP) && smash(YP)) {
+			// move forward
+			y++;
+			// recusrive call
+			//printf("YU\n");
+			rec_depth_build();
+			// move back
+			y--;
+		}
+		
+		// ZD
+		// if node is available and wall can be smashed
+		if (dir==ZM && valid(x,y,z-1,w) && !has_flag(x,y,z-1,w,F_TEMP) && smash(ZM)) {
+			// move forward
+			z--;
+			// recusrive call
+			//printf("ZD\n");
+			rec_depth_build();
+			// move back
+			z++;
+		}
+		
+		// ZU
+		// if node is available and wall can be smashed
+		if (dir==ZP && valid(x,y,z+1,w) && !has_flag(x,y,z+1,w,F_TEMP) && smash(ZP)) {
+			// move forward
+			z++;
+			// recusrive call
+			//printf("ZU\n");
+			rec_depth_build();
+			// move back
+			z--;
+		}
+		
+		// WD
+		// if node is available and wall can be smashed
+		if (dir==WM && valid(x,y,z,w-1) && !has_flag(x,y,z,w-1,F_TEMP) && smash(WM)) {
+			// move forward
+			w--;
+			// recusrive call
+			//printf("WD\n");
+			rec_depth_build();
+			// move back
+			w++;
+		}
+		
+		// WU
+		// if node is available and wall can be smashed
+		if (dir==WP && valid(x,y,z,w+1) && !has_flag(x,y,z,w+1,F_TEMP) && smash(WP)) {
+			// move forward
+			w++;
+			// recusrive call
+			//printf("WU\n");
+			rec_depth_build();
+			// move back
+			w--;
+		}
+		// swap remaining directions
+		dirs[ind] = dirs[n-1];
+	}
+		
+	// failed
+	return;
+}
+/*
+void depth_first_maze (void)
+{
+	char dir;
+	short int n;
+	char directions[] = {0,1,2,3};
+	//int temp; // debug
+	//int hub = 1; // rand()%30;
+	
+	set_flag(F_TEMP);
+
+	for (n=4; n>0; n--){
+		dir = rand() % n;
+		
+		// XD
+		if (directions[dir] == 0){
+			if (x>0 && !check_flag(bitwisemaze, x-1, y, MISC_FLAG)){
+				remove_XD (bitwisemaze, x, y);
+				depth_first_maze (bitwisemaze, x-1, y);
+			}	
+		}
+		
+		// XU
+		else if (directions[dir] == 1){
+			if (x<bitwisemaze[0].xsize-1 && !check_flag(bitwisemaze, x+1, y, MISC_FLAG)){
+				remove_XU (bitwisemaze, x, y);
+				depth_first_maze (bitwisemaze, x+1, y);
+			}	
+		}
+		
+		// YD
+		else if (directions[dir] == 2){
+			if (y>0 && !check_flag(bitwisemaze, x, y-1, MISC_FLAG)){
+				remove_YD (bitwisemaze, x, y);
+				depth_first_maze (bitwisemaze, x, y-1);
+			}	
+		}
+		
+		// YU
+		else if (directions[dir] == 3){
+			if (y<bitwisemaze[0].ysize-1 && !check_flag(bitwisemaze, x, y+1, MISC_FLAG)){
+				remove_YU (bitwisemaze, x, y);
+				depth_first_maze (bitwisemaze, x, y+1);
+			}	
+		}
+		
+		// swap remaining directions
+		//temp = directions[dir]; // debug
+		//directions[n-1] = temp; // debug
+		directions[dir] = directions[n-1];
+		//printf ("x=%i y=%i direction=%i dir=%i n=%i %i %i %i %i\n", xpos, ypos, temp, dir, n, directions[0], directions[1], directions[2], directions[3]); // debug
+	}
+	
+	// dramatically increases number of paths
+	if (hub == 0){
+		// XD
+		if (0 < x){
+			remove_XD (bitwisemaze, x, y);
+			depth_first_maze (bitwisemaze, x-1, y);
+		}	
+		
+		// XU
+		if (x < bitwisemaze[0].xsize-1){
+			remove_XU (bitwisemaze, x, y);
+		}	
+		
+		// YD
+		if (0 < y){
+			remove_YD (bitwisemaze, x, y);
+		}	
+		
+		// YU
+		if (y < bitwisemaze[0].ysize-1){
+			remove_YU (bitwisemaze, x, y);
+		}	
+	}
+
+	return;
+}
+*/
+////////////////////////////////
+// END M4.CPP
+////////////////////////////////
