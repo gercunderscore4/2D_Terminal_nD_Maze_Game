@@ -17,11 +17,21 @@ int main (void)
 	//printf("Hello, brave new world!\n\n");
 	srand((int) time(NULL));
 	
+	// clear screen
+	for (int i = 0; i < 200; i++) {
+		printf("\n");
+	}
+	
+	// title screen
 	printf(
-		"2D terminal 4D maze game\n"
-		"(3D window 4D maze game\n"
-		"\n"
-		"press enter");
+		"2D Terminal 4D Maze Game\n"
+		"                        \n"
+		"   By Geoffrey Card     \n"
+		"                        \n"
+		"      press enter       \n"
+		"                        \n"
+	);
+	// press enter
 	char c = 0;
 	do {
 		c = getchar();
@@ -29,10 +39,10 @@ int main (void)
 	for (int i = 0; i < 200; i++) {
 		printf("\n");
 	}
-	
 	m4 maze;
 	maze.test();
 	
 	//printf("\n\nGood-bye, cruel world!\n");
 	return 0;
 }
+
