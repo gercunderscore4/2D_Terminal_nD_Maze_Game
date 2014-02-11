@@ -11,9 +11,6 @@
 #include <cstdlib>
 #include <ctime>
 #include "mn.hpp"
-#include "m1.hpp"
-#include "m2.hpp"
-#include "m3.hpp"
 #include "m4.hpp"
 
 int main (void)
