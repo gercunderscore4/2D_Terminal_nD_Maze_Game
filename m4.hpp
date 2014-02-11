@@ -21,7 +21,7 @@ class m4 {
 		int gx, gy, gz, gw;
 
 		// test stuff here
-		void test (void);
+		void play (void);
 
 		// constructor
 		m4 (void);
@@ -76,8 +76,8 @@ class m4 {
 		// maze algorithms
 		// random, returns solvability
 		void random_build (void);
-		void depth_build();
-		void rec_depth_build();
+		void depth_build (void);
+		void rec_depth_build (void);
 };
 
 #endif // M4_H_
