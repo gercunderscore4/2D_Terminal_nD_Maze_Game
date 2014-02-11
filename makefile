@@ -10,7 +10,7 @@ CPPFLAGS = -g -Wall
 .SUFFIXES:
 .SUFFIXES: .cpp .hpp .o
 
-SOURCES = m.cpp m4.cpp
+SOURCES = m.cpp m1.cpp m2.cpp m3.cpp m4.cpp
 EXEC = m
 
 .PHONY: all
@@ -20,3 +20,4 @@ all:
 .PHONY: clean
 clean:
 	rm -f *.o
+	rm -f $(EXEC)
