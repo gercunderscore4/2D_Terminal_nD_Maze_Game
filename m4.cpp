@@ -6,52 +6,17 @@
 #include <cstdlib>
 #include <ctime>
 
+#include "mn.hpp"
 #include "m4.hpp"
 
-#define CLR_LEN 100
-
-// all tiles must be equal size
-#define SPACE "  "
-#define WALL  "▓▓"
-#define USER  "[]"
-#define GOAL  "()"
-#define HSKIP "  "
-#define VSKIP "\n"
-
-// wall flags
-// D down
-// u up
-#define XD 0x01
-#define YD 0x02
-#define ZD 0x04
-#define WD 0x08
-// other flags
-#define F_TEMP 0x10
-#define F_GOAL 0x20
-
-// maze maximum size
-#define SIZE_MIN 1
-#define SIZE_MAX 4
-
-// controls
-// M minus --
-// P plus ++
-#define XM 'a'
-#define XP 'd'
-#define YM 'w'
-#define YP 's'
-#define ZM 'q'
-#define ZP 'e'
-#define WM 'z'
-#define WP 'c'
-#define DIRS 8
-
-void m4::test (void)
+void m4::play (void)
 {
 	while (true) {
+		print_clr();
 		//lenx=3,leny=4,lenz=2,lenw=2; // for testing
 		get_size();
 		gen();
+		//random_build();
 		depth_build();
 		control();
 		degen();
@@ -62,7 +27,8 @@ void m4::test (void)
 //       constructicons       //
 ////////////////////////////////
 
-m4::m4 (void) {
+m4::m4 (void)
+{
 	// 
 	lenx=0, leny=0, lenz=0, lenw=0;	
 	arry=NULL;
@@ -70,7 +36,8 @@ m4::m4 (void) {
 	gx=0, gy=0, gz=0, gw=0;
 }
 
-m4::~m4 (void) {
+m4::~m4 (void)
+{
 	degen();
 }
 
@@ -577,15 +544,31 @@ void m4::print_all (void)
 
 void m4::get_size (void)
 {
+	// get n
+	int n = 0;
+	printf("dimensions (0-4):\n");
+	scanf("%i", &n);
+	if ( !(0 <= n && n <= 4) ) { // written this way to deal with NaN issues
+		n = 2;
+	}
 	// get size
-	printf("x size (<=%i):\n", SIZE_MAX);
-	scanf("%i", &lenx);
-	printf("y size (<=%i):\n", SIZE_MAX);
-	scanf("%i", &leny);
-	printf("z size (<=%i):\n", SIZE_MAX);
-	scanf("%i", &lenz);
-	printf("w size (<=%i):\n", SIZE_MAX);
-	scanf("%i", &lenw);
+	lenx = 1; leny = 1; lenz = 1, lenw = 1;
+	if (n >= 1) {
+		printf("x size (<=%i):\n", SIZE_MAX);
+		scanf("%i", &lenx);
+		if (n >= 2) {
+			printf("y size (<=%i):\n", SIZE_MAX);
+			scanf("%i", &leny);
+			if (n >= 3) {
+				printf("z size (<=%i):\n", SIZE_MAX);
+				scanf("%i", &lenz);
+				if (n >= 4) {
+					printf("w size (<=%i):\n", SIZE_MAX);
+					scanf("%i", &lenw);
+				}
+			}
+		}
+	}
 }
 
 bool m4::control (void)
@@ -1068,7 +1051,7 @@ int m4::rec_depth_solve (void)
 	return -1;
 }
 
-int rec_breadth_solve (void)
+int m4::rec_breadth_solve (void)
 {
 	return -1;
 }
@@ -1145,7 +1128,7 @@ void m4::rec_depth_build (void)
 	char dirs[] = {XM,XP,YM,YP,ZM,ZP,WM,WP};
 	int ind = 0;
 	char dir = 0;
-	for (int n = DIRS; n > 0; n--) {
+	for (int n = DIRS4; n > 0; n--) {
 		ind = rand() % n;
 		dir = dirs[ind];
 		
@@ -1251,86 +1234,7 @@ void m4::rec_depth_build (void)
 	// failed
 	return;
 }
-/*
-void depth_first_maze (void)
-{
-	char dir;
-	short int n;
-	char directions[] = {0,1,2,3};
-	//int temp; // debug
-	//int hub = 1; // rand()%30;
-	
-	set_flag(F_TEMP);
 
-	for (n=4; n>0; n--){
-		dir = rand() % n;
-		
-		// XD
-		if (directions[dir] == 0){
-			if (x>0 && !check_flag(bitwisemaze, x-1, y, MISC_FLAG)){
-				remove_XD (bitwisemaze, x, y);
-				depth_first_maze (bitwisemaze, x-1, y);
-			}	
-		}
-		
-		// XU
-		else if (directions[dir] == 1){
-			if (x<bitwisemaze[0].xsize-1 && !check_flag(bitwisemaze, x+1, y, MISC_FLAG)){
-				remove_XU (bitwisemaze, x, y);
-				depth_first_maze (bitwisemaze, x+1, y);
-			}	
-		}
-		
-		// YD
-		else if (directions[dir] == 2){
-			if (y>0 && !check_flag(bitwisemaze, x, y-1, MISC_FLAG)){
-				remove_YD (bitwisemaze, x, y);
-				depth_first_maze (bitwisemaze, x, y-1);
-			}	
-		}
-		
-		// YU
-		else if (directions[dir] == 3){
-			if (y<bitwisemaze[0].ysize-1 && !check_flag(bitwisemaze, x, y+1, MISC_FLAG)){
-				remove_YU (bitwisemaze, x, y);
-				depth_first_maze (bitwisemaze, x, y+1);
-			}	
-		}
-		
-		// swap remaining directions
-		//temp = directions[dir]; // debug
-		//directions[n-1] = temp; // debug
-		directions[dir] = directions[n-1];
-		//printf ("x=%i y=%i direction=%i dir=%i n=%i %i %i %i %i\n", xpos, ypos, temp, dir, n, directions[0], directions[1], directions[2], directions[3]); // debug
-	}
-	
-	// dramatically increases number of paths
-	if (hub == 0){
-		// XD
-		if (0 < x){
-			remove_XD (bitwisemaze, x, y);
-			depth_first_maze (bitwisemaze, x-1, y);
-		}	
-		
-		// XU
-		if (x < bitwisemaze[0].xsize-1){
-			remove_XU (bitwisemaze, x, y);
-		}	
-		
-		// YD
-		if (0 < y){
-			remove_YD (bitwisemaze, x, y);
-		}	
-		
-		// YU
-		if (y < bitwisemaze[0].ysize-1){
-			remove_YU (bitwisemaze, x, y);
-		}	
-	}
-
-	return;
-}
-*/
 ////////////////////////////////
 // END M4.CPP
 ////////////////////////////////
