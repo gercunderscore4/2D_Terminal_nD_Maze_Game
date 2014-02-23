@@ -23,6 +23,7 @@ int main (void)
 		printf("\n");
 	}
 	
+	/*
 	// title screen
 	printf(
 		"2D Terminal nD Maze Game\n"
@@ -37,10 +38,13 @@ int main (void)
 	do {
 		c = getchar();
 	} while (c != '\n');
-
+	*/
+	
 	// game
 	m4 maze;
-	maze.play();
+	//maze.play();
+	maze.play(33, 18, 1, 1);
+	//maze.test(10, 50, 50, 50, 1);
 	
 	//printf("\n\nGood-bye, cruel world!\n");
 	return 0;
