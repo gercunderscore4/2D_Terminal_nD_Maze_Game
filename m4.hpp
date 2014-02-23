@@ -5,6 +5,11 @@
 #ifndef M4_H_
 #define M4_H_
 
+typedef struct prim {
+	unsigned int node;
+	char dir;
+} prim;
+
 class m4 {
 	public:
 		// maze dimensions
@@ -20,14 +25,16 @@ class m4 {
 		// goal coordinates
 		int gx, gy, gz, gw;
 
-		// test stuff here
-		void play (void);
-
 		// constructor
 		m4 (void);
 		// destructor
 		~m4 (void);
 		
+		// test stuff here
+		void play (void);
+		void play (int xs, int ys, int zs, int ws);
+		void test (int n, int xs, int ys, int zs, int ws);
+
 		// allocate and deallocate maze data
 		void gen (void);
 		void degen (void);
@@ -71,13 +78,14 @@ class m4 {
 
 		// solvers
 		int rec_depth_solve (void);
-		int rec_breadth_solve (void);
+		int breadth_solve (void);
 		
 		// maze algorithms
 		// random, returns solvability
 		void random_build (void);
 		void depth_build (void);
 		void rec_depth_build (void);
+		void breadth_build (void);
 };
 
 #endif // M4_H_
