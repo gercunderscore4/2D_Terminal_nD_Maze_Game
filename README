@@ -5,6 +5,8 @@ Last updated: 2014-02-10 | 18:03
 Generates a 4D array representing a Euclidean, spatial, 4D maze. The rest is straight-forward, err, well, it would be, except that it's a maze.
 
 TO DO:
-- breadth-first solver*
 - 3D graphics*
+- Hunt & Kill algorithm
+- Eller's algorithm
+- Question use of classes
 * Already implemented elsewhere
