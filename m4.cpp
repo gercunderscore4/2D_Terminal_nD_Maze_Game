@@ -5,6 +5,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <queue>
+#include <vector>
+#include <cmath>
+
+using namespace std;
 
 #include "mn.hpp"
 #include "m4.hpp"
@@ -12,15 +17,110 @@
 void m4::play (void)
 {
 	while (true) {
+		// clear screen
 		print_clr();
-		//lenx=3,leny=4,lenz=2,lenw=2; // for testing
+		
+		// size
 		get_size();
+		
+		// allocate
 		gen();
+		
+		// build, choose one
 		//random_build();
 		depth_build();
+		//breadth_build();
+		
+		// solve
+		//printf("solving:\n");
+		//printf("depth solve: %i\n", rec_depth_solve());
+		//printf("breadth solve: %i\n", breadth_solve());
+		//getchar();
+		
+		// play
 		control();
+		
+		// deallocate
 		degen();
 	}
+}
+
+void m4::play (int xs, int ys, int zs, int ws)
+{
+	while (true) {
+		// clear screen
+		print_clr();
+		
+		// size
+		lenx=xs, leny=ys, lenz=zs, lenw=ws; // for testing
+		
+		// allocate
+		gen();
+		
+		// build, choose one
+		random_build();
+		//depth_build();
+		//breadth_build();
+		
+		// solve
+		//printf("solving:\n");
+		//printf("depth solve: %i\n", rec_depth_solve());
+		//printf("breadth solve: %i\n", breadth_solve());
+		//getchar();
+		
+		// play
+		control();
+		
+		// deallocate
+		degen();
+	}
+}
+
+void m4::test (int n, int xs, int ys, int zs, int ws)
+{
+	int temp; // will literally be related to time
+	int* build_time = new int[n];
+	float build_avg = 0;
+	int* solve_time = new int[n];
+	float solve_avg = 0;
+	
+	// size
+	lenx=xs, leny=ys, lenz=zs, lenw=ws; // for testing
+		
+	// allocate
+	gen();
+		
+	printf("num bld slv (sec)\n");
+	for (int i = 0; i < n; i++) {
+		temp = (int) time(NULL);
+		// build, choose one
+		//random_build();
+		depth_build();
+		//breadth_build();
+		//
+		build_time[i] = (int) time(NULL) - temp;
+		
+		temp = (int) time(NULL);
+		// solve, choose one
+		//rec_depth_solve();
+		breadth_solve();
+		//
+		solve_time[i] = (int) time(NULL) - temp;
+		
+		printf("%03i %03i %03i\n", i, build_time[i], solve_time[i]);
+		build_avg += build_time[i];
+		solve_avg += solve_time[i];
+	}
+	build_avg/=n;
+	solve_avg/=n;
+	printf("--- --- ---\n");
+	printf("--- %7.3f\n", build_avg);
+	printf("--- --- %7.3f\n", solve_avg);
+	delete[] build_time;
+	delete[] solve_time;
+	
+	// deallocate
+	degen();	
 }
 
 ////////////////////////////////
@@ -29,7 +129,7 @@ void m4::play (void)
 
 m4::m4 (void)
 {
-	// 
+	// all blank
 	lenx=0, leny=0, lenz=0, lenw=0;	
 	arry=NULL;
 	x=0, y=0, z=0, w=0;
@@ -522,6 +622,10 @@ void m4::print_all (void)
 							else if (has_flag(i,j,k,h,F_GOAL)) {
 								printf("%s", GOAL);
 							}
+							// temp
+							else if (has_flag(i,j,k,h,F_TEMP)) {
+								printf("%s", TEMP);
+							}
 							else {
 								printf("%s", SPACE);
 							}
@@ -584,7 +688,7 @@ bool m4::control (void)
 		// debug
 		//printf ("%i %i %i %i\n", x, y, z, w);
 		scanf("%c", &comm);
-		if (comm == '`') {
+		if (comm == RESET) {
 			cont = false;
 		}
 		else if (comm == XM && can_move(comm)) {
@@ -738,7 +842,7 @@ bool inline m4::can_move(int i, int j, int k, int h, char dir)
 bool m4::smash(char dir) {
 	switch(dir) {
 		case XM:
-			if (0 < x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
 				// smash
 				arry[x][y][z][w] &= ~XD;
 				// did smash
@@ -750,7 +854,7 @@ bool m4::smash(char dir) {
 		case XP:
 			// XM for x+1
 			x++;
-			if (0 < x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
 				// smash
 				arry[x][y][z][w] &= ~XD;
 				// return to x
@@ -764,7 +868,7 @@ bool m4::smash(char dir) {
 				return false;
 			}
 		case YM:
-			if (0 < x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
 				// smash
 				arry[x][y][z][w] &= ~YD;
 				// did smash
@@ -776,7 +880,7 @@ bool m4::smash(char dir) {
 		case YP:
 			// YM for y+1
 			y++;
-			if (0 < x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
 				// smash
 				arry[x][y][z][w] &= ~YD;
 				// return to y
@@ -790,7 +894,7 @@ bool m4::smash(char dir) {
 				return false;
 			}
 		case ZM:
-			if (0 < x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
 				// smash
 				arry[x][y][z][w] &= ~ZD;
 				// did smash
@@ -802,7 +906,7 @@ bool m4::smash(char dir) {
 		case ZP:
 			// ZM for z+1
 			z++;
-			if (0 < x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
 				// smash
 				arry[x][y][z][w] &= ~ZD;
 				// return to z
@@ -816,7 +920,7 @@ bool m4::smash(char dir) {
 				return false;
 			}
 		case WM:
-			if (0 < x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
 				// smash
 				arry[x][y][z][w] &= ~WD;
 				// did smash
@@ -828,7 +932,7 @@ bool m4::smash(char dir) {
 		case WP:
 			// WM for w+1
 			w++;
-			if (0 < x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
 				// smash
 				arry[x][y][z][w] &= ~WD;
 				// return to w
@@ -849,7 +953,7 @@ bool m4::smash(char dir) {
 bool m4::smash(int i, int j, int k, int h, char dir) {
 	switch(dir) {
 		case XM:
-			if (0 < i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
 				arry[i][j][k][h] &= ~XD;
 				return true;
 			} else {
@@ -858,14 +962,14 @@ bool m4::smash(int i, int j, int k, int h, char dir) {
 		case XP:
 			// XM for i+1
 			i++;
-			if (0 < i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
 				arry[i][j][k][h] &= ~XD;
 				return true;
 			} else {
 				return false;
 			}
 		case YM:
-			if (0 < i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
 				arry[i][j][k][h] &= ~YD;
 				return true;
 			} else {
@@ -874,14 +978,14 @@ bool m4::smash(int i, int j, int k, int h, char dir) {
 		case YP:
 			// YM for j+1
 			j++;
-			if (0 < i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
 				arry[i][j][k][h] &= ~YD;
 				return true;
 			} else {
 				return false;
 			}
 		case ZM:
-			if (0 < i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
 				arry[i][j][k][h] &= ~ZD;
 				return true;
 			} else {
@@ -890,14 +994,14 @@ bool m4::smash(int i, int j, int k, int h, char dir) {
 		case ZP:
 			// ZM for k+1
 			k++;
-			if (0 < i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
 				arry[i][j][k][h] &= ~ZD;
 				return true;
 			} else {
 				return false;
 			}
 		case WM:
-			if (0 < i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
 				arry[i][j][k][h] &= ~WD;
 				return true;
 			} else {
@@ -906,7 +1010,7 @@ bool m4::smash(int i, int j, int k, int h, char dir) {
 		case WP:
 			// WM for h+1
 			h++;
-			if (0 < i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
 				arry[i][j][k][h] &= ~WD;
 				return true;
 			} else {
@@ -925,6 +1029,7 @@ bool m4::smash(int i, int j, int k, int h, char dir) {
 int m4::rec_depth_solve (void)
 {
 	// assume current position is valid
+	//printf("%i %i %i %i\n",x,y,z,w);
 
 	// goal reached
 	if (has_flag(F_GOAL)) {
@@ -940,6 +1045,7 @@ int m4::rec_depth_solve (void)
 		// move forward
 		x--;
 		// recusrive call
+		//printf("XM %i %i %i %i\n",x,y,z,w);
 		int c = rec_depth_solve();
 		// move back
 		x++;
@@ -954,6 +1060,7 @@ int m4::rec_depth_solve (void)
 		// move
 		x++;
 		// recusrive call
+		//printf("XP %i %i %i %i\n",x,y,z,w);
 		int c = rec_depth_solve();
 		// move back
 		x--;
@@ -968,6 +1075,7 @@ int m4::rec_depth_solve (void)
 		// move
 		y--;
 		// recusrive call
+		//printf("YM %i %i %i %i\n",x,y,z,w);
 		int c = rec_depth_solve();
 		// move back
 		y++;
@@ -982,6 +1090,7 @@ int m4::rec_depth_solve (void)
 		// move
 		y++;
 		// recusrive call
+		//printf("YP %i %i %i %i\n",x,y,z,w);
 		int c = rec_depth_solve();
 		// move back
 		y--;
@@ -996,6 +1105,7 @@ int m4::rec_depth_solve (void)
 		// move
 		z--;
 		// recusrive call
+		//printf("ZM %i %i %i %i\n",x,y,z,w);
 		int c = rec_depth_solve();
 		// move back
 		z++;
@@ -1010,6 +1120,7 @@ int m4::rec_depth_solve (void)
 		// move
 		z++;
 		// recusrive call
+		//printf("ZP %i %i %i %i\n",x,y,z,w);
 		int c = rec_depth_solve();
 		// move back
 		z--;
@@ -1024,6 +1135,7 @@ int m4::rec_depth_solve (void)
 		// move
 		w--;
 		// recusrive call
+		//printf("WM %i %i %i %i\n",x,y,z,w);
 		int c = rec_depth_solve();
 		// move back
 		w++;
@@ -1038,6 +1150,7 @@ int m4::rec_depth_solve (void)
 		// move
 		w++;
 		// recusrive call
+		//printf("WP %i %i %i %i\n",x,y,z,w);
 		int c = rec_depth_solve();
 		// move back
 		w--;
@@ -1051,8 +1164,83 @@ int m4::rec_depth_solve (void)
 	return -1;
 }
 
-int m4::rec_breadth_solve (void)
+int m4::breadth_solve (void)
 {
+	// save position
+	int xs=x, ys=y, zs=z, ws=w;
+
+	clear_flag_all(F_TEMP);
+	
+	queue <unsigned int> nodes;
+	nodes.push((unsigned int) (x<<24) + (y<<16) + (z<<8) + (w<<0));
+	while (!nodes.empty()) {
+		x = 0XFF & (nodes.front()>>24);
+		y = 0XFF & (nodes.front()>>16);
+		z = 0XFF & (nodes.front()>>8);
+		w = 0XFF & (nodes.front());
+		nodes.pop();
+		
+		//printf("%i %i %i %i\n",x,y,z,w);
+		
+		// goal reached
+		if (has_flag(F_GOAL)) {
+			clear_flag_all(F_TEMP);
+			x=ws, y=ys, z=zs, w=ws;
+			return 1;
+		}
+
+		// mark as visited
+		set_flag(x,y,z,w,F_TEMP);
+		// debug
+		//print_all();
+		
+		// check
+		// XM
+		if (can_move(XM) && !has_flag(x-1,y,z,w,F_TEMP)) {
+			//printf("XM %i %i %i %i\n",x-1,y,z,w);
+			nodes.push((unsigned int) ((x-1)<<24) + (y<<16) + (z<<8) + (w<<0));
+		}
+		// XP
+		if (can_move(XP) && !has_flag(x+1,y,z,w,F_TEMP)) {
+			//printf("XP %i %i %i %i\n",x+1,y,z,w);
+			nodes.push((unsigned int) ((x+1)<<24) + (y<<16) + (z<<8) + (w<<0));
+		}
+		// YM
+		if (can_move(YM) && !has_flag(x,y-1,z,w,F_TEMP)) {
+			//printf("YM %i %i %i %i\n",x,y-1,z,w);
+			nodes.push((unsigned int) (x<<24) + ((y-1)<<16) + (z<<8) + (w<<0));
+		}
+		// YP
+		if (can_move(YP) && !has_flag(x,y+1,z,w,F_TEMP)) {
+			//printf("YP %i %i %i %i\n",x,y+1,z,w);
+			nodes.push((unsigned int) (x<<24) + ((y+1)<<16) + (z<<8) + (w<<0));
+		}
+		// ZM
+		if (can_move(ZM) && !has_flag(x,y,z-1,w,F_TEMP)) {
+			//printf("ZM %i %i %i %i\n",x,y,z-1,w);
+			nodes.push((unsigned int) (x<<24) + (y<<16) + ((z-1)<<8) + (w<<0));
+		}
+		// ZP
+		if (can_move(ZP) && !has_flag(x,y,z+1,w,F_TEMP)) {
+			//printf("ZP %i %i %i %i\n",x,y,z+1,w);
+			nodes.push((unsigned int) (x<<24) + (y<<16) + ((z+1)<<8) + (w<<0));
+		}
+		// WM
+		if (can_move(WM) && !has_flag(x,y,z,w-1,F_TEMP)) {
+			//printf("WM %i %i %i %i\n",x,y,z,w-1);
+			nodes.push((unsigned int) (x<<24) + (y<<16) + (z<<8) + ((w-1)<<0));
+		}
+		// WP
+		if (can_move(WP) && !has_flag(x,y,z,w+1,F_TEMP)) {
+			//printf("ZP %i %i %i %i\n",x,y,z,w+1);
+			nodes.push((unsigned int) (x<<24) + (y<<16) + (z<<8) + ((w+1)<<0));
+		}
+	}
+	
+	// reset
+	clear_flag_all(F_TEMP);
+	x=xs, y=ys, z=zs, w=ws;
+	
 	return -1;
 }
 
@@ -1062,33 +1250,27 @@ int m4::rec_breadth_solve (void)
 
 void m4::random_build (void)
 {
-	// completely random
-	empty();
-	for (int i = 0; i < lenx; i++) {
-		for (int j = 0; j < leny; j++) {
-			for (int k = 0; k < lenz; k++) {
-				for (int h = 0; h < lenw; h++) {
-					if (rand() > RAND_MAX/2) arry[i][j][k][h] |= XD;
-					if (rand() > RAND_MAX/2) arry[i][j][k][h] |= YD;
-					if (rand() > RAND_MAX/2) arry[i][j][k][h] |= ZD;
-					if (rand() > RAND_MAX/2) arry[i][j][k][h] |= WD;
+	//int c = -1;
+	//while (c < 0) {
+		// completely random
+		empty();
+		for (int i = 0; i < lenx; i++) {
+			for (int j = 0; j < leny; j++) {
+				for (int k = 0; k < lenz; k++) {
+					for (int h = 0; h < lenw; h++) {
+						if (rand() > RAND_MAX/2) arry[i][j][k][h] |= XD;
+						if (rand() > RAND_MAX/2) arry[i][j][k][h] |= YD;
+						if (rand() > RAND_MAX/2) arry[i][j][k][h] |= ZD;
+						if (rand() > RAND_MAX/2) arry[i][j][k][h] |= WD;
+					}
 				}
 			}
 		}
-	}
-	frame();
+		frame();
 
-	// when you get a breadth-first solver, implement this
-	/*
-	int c = -1;
-	while (c < 0) {
-		random_build();
-		c = rec_depth_solve();
-		//print_all();
-		//printf("%i %i %i %i\n%i\n",x,y,z,w,c);
-		//getchar();
-	}
-	*/
+		//c = breadth_solve();
+		//c = rec_depth_solve();
+	//}
 
 	// start
 	x=0, y=0, z=0, w=0;
@@ -1109,6 +1291,9 @@ void m4::depth_build (void)
 	if (!valid()) x=0,y=0,z=0,w=0;
 	// smashy-smashy
 	rec_depth_build();
+	// remove flags
+	clear_flag_all(F_TEMP);
+	// goal
 	gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
 	set_flag(gx,gy,gz,gw,F_GOAL);
 }
@@ -1232,6 +1417,193 @@ void m4::rec_depth_build (void)
 	}
 		
 	// failed
+	return;
+}
+
+////////////////////////////////
+//       breadth-first        //
+////////////////////////////////
+
+void m4::breadth_build (void)
+{
+	// build walls
+	cage();
+	// if position not valid, move to origin
+	if (!valid()) x=0,y=0,z=0,w=0;
+	
+	// save position
+	int xs=x, ys=y, zs=z, ws=w;
+	x = rand() % lenx;
+	y = rand() % leny;
+	z = rand() % lenz;
+	w = rand() % lenw;
+
+	clear_flag_all(F_TEMP);
+	
+	vector<prim> nodes;
+	prim temp;
+
+	// visited origin
+	set_flag(x,y,z,w,F_TEMP);
+		
+	// check
+	// XM
+	if (valid(x-1,y,z,w) && !has_flag(x-1,y,z,w,F_TEMP)) {
+		temp.dir = XP;
+		temp.node = (unsigned int) ((x-1)<<24) + (y<<16) + (z<<8) + (w<<0);
+		nodes.push_back(temp);
+		set_flag(x-1,y,z,w,F_TEMP);
+	}
+	// XP
+	if (valid(x+1,y,z,w) && !has_flag(x+1,y,z,w,F_TEMP)) {
+		temp.dir = XM;
+		temp.node = (unsigned int) ((x+1)<<24) + (y<<16) + (z<<8) + (w<<0);
+		nodes.push_back(temp);
+		set_flag(x+1,y,z,w,F_TEMP);
+	}
+	// YM
+	if (valid(x,y-1,z,w) && !has_flag(x,y-1,z,w,F_TEMP)) {
+		temp.dir = YP;
+		temp.node = (unsigned int) (x<<24) + ((y-1)<<16) + (z<<8) + (w<<0);
+		nodes.push_back(temp);
+		set_flag(x,y-1,z,w,F_TEMP);
+	}
+	// YP
+	if (valid(x,y+1,z,w) && !has_flag(x,y+1,z,w,F_TEMP)) {
+		temp.dir = YM;
+		temp.node = (unsigned int) (x<<24) + ((y+1)<<16) + (z<<8) + (w<<0);
+		nodes.push_back(temp);
+		set_flag(x,y+1,z,w,F_TEMP);
+	}
+	// ZM
+	if (valid(x,y,z-1,w) && !has_flag(x,y,z-1,w,F_TEMP)) {
+		temp.dir = ZP;
+		temp.node = (unsigned int) (x<<24) + (y<<16) + ((z-1)<<8) + (w<<0);
+		nodes.push_back(temp);
+		set_flag(x,y,z-1,w,F_TEMP);
+	}
+	// ZP
+	if (valid(x,y,z+1,w) && !has_flag(x,y,z+1,w,F_TEMP)) {
+		temp.dir = ZM;
+		temp.node = (unsigned int) (x<<24) + (y<<16) + ((z+1)<<8) + (w<<0);
+		nodes.push_back(temp);
+		set_flag(x,y,z+1,w,F_TEMP);
+	}
+	// WM
+	if (valid(x,y,z,w-1) && !has_flag(x,y,z,w-1,F_TEMP)) {
+		temp.dir = WP;
+		temp.node = (unsigned int) (x<<24) + (y<<16) + (z<<8) + ((w-1)<<0);
+		nodes.push_back(temp);
+		set_flag(x,y,z,w-1,F_TEMP);
+	}
+	// WP
+	if (valid(x,y,z,w+1) && !has_flag(x,y,z,w+1,F_TEMP)) {
+		temp.dir = WM;
+			temp.node = (unsigned int) (x<<24) + (y<<16) + (z<<8) + ((w+1)<<0);
+		nodes.push_back(temp);
+		set_flag(x,y,z,w+1,F_TEMP);
+	}
+
+	// loop
+	while (!nodes.empty()) {
+		
+		
+		// choose random node
+		//int r = rand() % nodes.size();
+		
+		float f = ((float) rand()/RAND_MAX ) * 10; // warning: magic number
+		int r = floor( nodes.size() * (1-exp(-f)) );
+		//printf("%7.3f %3i %3lu\n", f, r, nodes.size());
+		
+		// collect data
+		x = 0XFF & (nodes[r].node>>24);
+		y = 0XFF & (nodes[r].node>>16);
+		z = 0XFF & (nodes[r].node>>8);
+		w = 0XFF & (nodes[r].node);
+		char dir = nodes[r].dir;
+		
+		// break wall
+		//bool hulk = 
+		smash(dir);
+		
+		// debug
+		//printf("%i %i %i %X, %c, %i\n", x,y,z,w,dir,hulk);
+		//print_all();
+		
+		// swap and remove
+		nodes[r].node = nodes[nodes.size()-1].node;
+		nodes[r].dir = nodes[nodes.size()-1].dir;
+		nodes.pop_back();
+		
+		// mark as visited
+		set_flag(x,y,z,w,F_TEMP);
+		
+		// check
+		// XM
+		if (valid(x-1,y,z,w) && !has_flag(x-1,y,z,w,F_TEMP)) {
+			temp.dir = XP;
+			temp.node = (unsigned int) ((x-1)<<24) + (y<<16) + (z<<8) + (w<<0);
+			nodes.push_back(temp);
+			set_flag(x-1,y,z,w,F_TEMP);
+		}
+		// XP
+		if (valid(x+1,y,z,w) && !has_flag(x+1,y,z,w,F_TEMP)) {
+			temp.dir = XM;
+			temp.node = (unsigned int) ((x+1)<<24) + (y<<16) + (z<<8) + (w<<0);
+			nodes.push_back(temp);
+			set_flag(x+1,y,z,w,F_TEMP);
+		}
+		// YM
+		if (valid(x,y-1,z,w) && !has_flag(x,y-1,z,w,F_TEMP)) {
+			temp.dir = YP;
+			temp.node = (unsigned int) (x<<24) + ((y-1)<<16) + (z<<8) + (w<<0);
+			nodes.push_back(temp);
+			set_flag(x,y-1,z,w,F_TEMP);
+		}
+		// YP
+		if (valid(x,y+1,z,w) && !has_flag(x,y+1,z,w,F_TEMP)) {
+			temp.dir = YM;
+			temp.node = (unsigned int) (x<<24) + ((y+1)<<16) + (z<<8) + (w<<0);
+			nodes.push_back(temp);
+			set_flag(x,y+1,z,w,F_TEMP);
+		}
+		// ZM
+		if (valid(x,y,z-1,w) && !has_flag(x,y,z-1,w,F_TEMP)) {
+			temp.dir = ZP;
+			temp.node = (unsigned int) (x<<24) + (y<<16) + ((z-1)<<8) + (w<<0);
+			nodes.push_back(temp);
+			set_flag(x,y,z-1,w,F_TEMP);
+		}
+		// ZP
+		if (valid(x,y,z+1,w) && !has_flag(x,y,z+1,w,F_TEMP)) {
+			temp.dir = ZM;
+			temp.node = (unsigned int) (x<<24) + (y<<16) + ((z+1)<<8) + (w<<0);
+			nodes.push_back(temp);
+			set_flag(x,y,z+1,w,F_TEMP);
+		}
+		// WM
+		if (valid(x,y,z,w-1) && !has_flag(x,y,z,w-1,F_TEMP)) {
+			temp.dir = WP;
+			temp.node = (unsigned int) (x<<24) + (y<<16) + (z<<8) + ((w-1)<<0);
+			nodes.push_back(temp);
+			set_flag(x,y,z,w-1,F_TEMP);
+		}
+		// WP
+		if (valid(x,y,z,w+1) && !has_flag(x,y,z,w+1,F_TEMP)) {
+			temp.dir = WM;
+			temp.node = (unsigned int) (x<<24) + (y<<16) + (z<<8) + ((w+1)<<0);
+			nodes.push_back(temp);
+			set_flag(x,y,z,w+1,F_TEMP);
+		}
+	}
+	
+	// reset
+	clear_flag_all(F_TEMP);
+	x=xs, y=ys, z=zs, w=ws;
+	
+	// goal
+	gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
+	set_flag(gx,gy,gz,gw,F_GOAL);
 	return;
 }
 
