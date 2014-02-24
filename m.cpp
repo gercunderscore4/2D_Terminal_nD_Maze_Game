@@ -16,14 +16,14 @@
 int main (void)
 {
 	//printf("Hello, brave new world!\n\n");
-	srand((int) time(NULL));
+	//srand((int) time(NULL));
 	
+	/*
 	// clear screen
 	for (int i = 0; i < CLR_LEN; i++) {
 		printf("\n");
 	}
 	
-	/*
 	// title screen
 	printf(
 		"2D Terminal nD Maze Game\n"
@@ -43,8 +43,9 @@ int main (void)
 	// game
 	m4 maze;
 	//maze.play();
-	maze.play(33, 18, 1, 1);
+	maze.play(20, 15, 1, 1);
 	//maze.test(10, 50, 50, 50, 1);
+	//maze.do_stuff();
 	
 	//printf("\n\nGood-bye, cruel world!\n");
 	return 0;
