@@ -1,12 +1,24 @@
+INFO
 N-Dimensional Maze Game
 Author: Geoffrey Card
-Last updated: 2014-02-10 | 18:03
+Last updated: 2014-02-23 | 16:16
 
-Generates a 4D array representing a Euclidean, spatial, 4D maze. The rest is straight-forward, err, well, it would be, except that it's a maze.
+Generates a Euclidean, spatial, 4D maze (for lower dimensions, input 1 for size of all un-used dimensions).
+
+FEATURES:
+- Maze building algorithms:
+  - depth-first
+  - breadth-first
+  - hunt & kill
+- Maze sovling algorithms:
+  - depth-first
+  - breadth-first
 
 TO DO:
+- Windowed
+- Real-time controls
 - 3D graphics*
-- Hunt & Kill algorithm
 - Eller's algorithm
 - Question use of classes
+- delete m0, m1, m2, m3
 * Already implemented elsewhere
