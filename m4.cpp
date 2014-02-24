@@ -14,6 +14,21 @@ using namespace std;
 #include "mn.hpp"
 #include "m4.hpp"
 
+void m4::do_stuff (void)
+{
+	lenx=3,leny=3,lenz=3,lenw=1;
+
+	gen();
+	
+	hunt_and_kill_build();
+	
+	print_all();
+	
+	control();
+	
+	degen();
+}
+
 void m4::play (void)
 {
 	while (true) {
@@ -28,8 +43,9 @@ void m4::play (void)
 		
 		// build, choose one
 		//random_build();
-		depth_build();
+		//depth_build();
 		//breadth_build();
+		hunt_and_kill_build();
 		
 		// solve
 		//printf("solving:\n");
@@ -39,7 +55,7 @@ void m4::play (void)
 		
 		// play
 		control();
-		
+
 		// deallocate
 		degen();
 	}
@@ -58,9 +74,10 @@ void m4::play (int xs, int ys, int zs, int ws)
 		gen();
 		
 		// build, choose one
-		random_build();
+		//random_build();
 		//depth_build();
 		//breadth_build();
+		hunt_and_kill_build();
 		
 		// solve
 		//printf("solving:\n");
@@ -118,9 +135,6 @@ void m4::test (int n, int xs, int ys, int zs, int ws)
 	printf("--- --- %7.3f\n", solve_avg);
 	delete[] build_time;
 	delete[] solve_time;
-	
-	// deallocate
-	degen();	
 }
 
 ////////////////////////////////
@@ -134,6 +148,9 @@ m4::m4 (void)
 	arry=NULL;
 	x=0, y=0, z=0, w=0;
 	gx=0, gy=0, gz=0, gw=0;
+
+	// seed rand
+	srand((int) time(NULL));
 }
 
 m4::~m4 (void)
@@ -1607,6 +1624,195 @@ void m4::breadth_build (void)
 	return;
 }
 
+void m4::hunt_and_kill_build (void)
+{
+	// build walls
+	cage();
+	// if position not valid, move to origin
+	if (!valid()) x=0,y=0,z=0,w=0;
+	// save original coordinates
+	int xo=x,yo=y,zo=z,wo=w;
+	
+	// mark starting point
+	set_flag(F_TEMP);
+	// make a starting path
+	for (int l = 10; l > 0; l--) {
+		if (!kill()) break;
+	}
+	
+	// hunt
+	bool done = false;
+	int xc=0,yc=0,zc=0,wc=0;
+	while (!done) {
+		for (x = 0; x < lenx; x++) {
+			for (y = 0; y < leny; y++) {
+				for (z = 0; z < lenz; z++) {
+					for (w = 0; w < lenw; w++) {
+						// if
+						//     this is an un-used node next to a used node
+						// then
+						//     break to used node and begin path
+						if (kill_node()) {
+							// make a starting path
+							for (int l = 10; l > 0; l--) {
+								if (!kill()) break;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// check if every node visited
+		done = true;
+		for (x = 0; x < lenx; x++) {
+			for (y = 0; y < leny; y++) {
+				for (z = 0; z < lenz; z++) {
+					for (w = 0; w < lenw; w++) {
+						done &= has_flag(F_TEMP); 
+					}
+				}
+			}
+		}
+		
+		//print_all();
+	}
+	
+	// reset
+	clear_flag_all(F_TEMP);
+	x=xo,y=yo,z=zo,w=wo;
+	// goal
+	gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
+	set_flag(gx,gy,gz,gw,F_GOAL);
+	return;
+}
+
 ////////////////////////////////
 // END M4.CPP
 ////////////////////////////////
+
+
+bool m4::kill (void)
+{
+	char dirs[] = {XM,XP,YM,YP,ZM,ZP,WM,WP};
+	int ind = 0;
+	char dir = 0;
+	for (int n = DIRS4; n > 0; n--) {
+		ind = rand() % n;
+		dir = dirs[ind];
+		
+		// if
+		//     direction is picked
+		//     it's valid
+		//     it's new
+		//     and it can be smashed
+		// then
+		//     move to it
+		//     return true
+		if (dir==XM && valid(x-1,y,z,w) && !has_flag(x-1,y,z,w,F_TEMP) && smash(XM)) {
+			x--;
+			set_flag(F_TEMP);
+			return true;
+		}
+		else if (dir==XP && valid(x+1,y,z,w) && !has_flag(x+1,y,z,w,F_TEMP) && smash(XP)) {
+			x++;
+			set_flag(F_TEMP);
+			return true;
+		}
+		else if (dir==YM && valid(x,y-1,z,w) && !has_flag(x,y-1,z,w,F_TEMP) && smash(YM)) {
+			y--;
+			set_flag(F_TEMP);
+			return true;
+		}
+		else if (dir==YP && valid(x,y+1,z,w) && !has_flag(x,y+1,z,w,F_TEMP) && smash(YP)) {
+			y++;
+			set_flag(F_TEMP);
+			return true;
+		}
+		else if (dir==ZM && valid(x,y,z-1,w) && !has_flag(x,y,z-1,w,F_TEMP) && smash(ZM)) {
+			z--;
+			set_flag(F_TEMP);
+			return true;
+		}
+		else if (dir==ZP && valid(x,y,z+1,w) && !has_flag(x,y,z+1,w,F_TEMP) && smash(ZP)) {
+			z++;
+			set_flag(F_TEMP);
+			return true;
+		}
+		else if (dir==WM && valid(x,y,z,w-1) && !has_flag(x,y,z,w-1,F_TEMP) && smash(WM)) {
+			w--;
+			set_flag(F_TEMP);
+			return true;
+		}
+		else if (dir==WP && valid(x,y,z,w+1) && !has_flag(x,y,z,w+1,F_TEMP) && smash(WP)) {
+			w++;
+			set_flag(F_TEMP);
+			return true;
+		}
+		// swap remaining directions
+		dirs[ind] = dirs[n-1];
+	}
+	// couldn't move
+	return false;
+}
+
+bool m4::kill_node (void)
+{
+	// if
+	//     this is an un-used node next to a used node
+	// then
+	//     break to used node
+	if (!has_flag(F_TEMP)) {
+		char dirs[] = {XM,XP,YM,YP,ZM,ZP,WM,WP};
+		int ind = 0;
+		char dir = 0;
+		for (int n = DIRS4; n > 0; n--) {
+			ind = rand() % n;
+			dir = dirs[ind];
+		
+			// if
+			//     direction is picked
+			//     it's valid
+			//     it's old
+			//     and it can be smashed
+			// then
+			//     return true
+			if (dir==XM && valid(x-1,y,z,w) && has_flag(x-1,y,z,w,F_TEMP) && smash(XM)) {
+				set_flag(F_TEMP);
+				return true;
+			}
+			else if (dir==XP && valid(x+1,y,z,w) && has_flag(x+1,y,z,w,F_TEMP) && smash(XP)) {
+				set_flag(F_TEMP);
+				return true;
+			}
+			else if (dir==YM && valid(x,y-1,z,w) && has_flag(x,y-1,z,w,F_TEMP) && smash(YM)) {
+				set_flag(F_TEMP);
+				return true;
+			}
+			else if (dir==YP && valid(x,y+1,z,w) && has_flag(x,y+1,z,w,F_TEMP) && smash(YP)) {
+				set_flag(F_TEMP);
+				return true;
+			}
+			else if (dir==ZM && valid(x,y,z-1,w) && has_flag(x,y,z-1,w,F_TEMP) && smash(ZM)) {
+				set_flag(F_TEMP);
+				return true;
+			}
+			else if (dir==ZP && valid(x,y,z+1,w) && has_flag(x,y,z+1,w,F_TEMP) && smash(ZP)) {
+				set_flag(F_TEMP);
+				return true;
+			}
+			else if (dir==WM && valid(x,y,z,w-1) && has_flag(x,y,z,w-1,F_TEMP) && smash(WM)) {
+				set_flag(F_TEMP);
+				return true;
+			}
+			else if (dir==WP && valid(x,y,z,w+1) && has_flag(x,y,z,w+1,F_TEMP) && smash(WP)) {
+				set_flag(F_TEMP);
+				return true;
+			}
+			// swap remaining directions
+			dirs[ind] = dirs[n-1];
+		}
+		// couldn't move
+	}
+	return false;
+}
