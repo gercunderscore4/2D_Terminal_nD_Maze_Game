@@ -31,6 +31,7 @@ class m4 {
 		~m4 (void);
 		
 		// test stuff here
+		void do_stuff (void);
 		void play (void);
 		void play (int xs, int ys, int zs, int ws);
 		void test (int n, int xs, int ys, int zs, int ws);
@@ -86,6 +87,9 @@ class m4 {
 		void depth_build (void);
 		void rec_depth_build (void);
 		void breadth_build (void);
+		void hunt_and_kill_build (void);
+		bool kill (void);
+		bool kill_node (void);
 };
 
 #endif // M4_H_
