@@ -8,6 +8,7 @@
 #define WALL  "▓▓"
 #define USER  "[]"
 #define GOAL  "()"
+#define TEMP  "::"
 #define HSKIP "  "
 #define VSKIP "\n"
 
@@ -24,9 +25,10 @@
 
 // maze maximum size
 #define SIZE_MIN 1
-#define SIZE_MAX 20
+#define SIZE_MAX 100
 
 // controls
+#define RESET ' '
 // M minus --
 // P plus ++
 #define XM 'a'
