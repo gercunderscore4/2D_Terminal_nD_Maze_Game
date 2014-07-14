@@ -1,13 +1,21 @@
-///////////////////////////////
-// BEG M4.HPP
-////////////////////////////////
+/*
+ * FILE:    m4.hpp
+ * PURPOSE: 4D maze class
+ * AUTHOR:  Geoffrey Card
+ * DATE:    ????-??-?? - 2014-07-11
+ * NOTES:   d-swap cannot handle multiples of a dimension (an == am)
+ */
 
-#ifndef M4_H_
-#define M4_H_
+#ifndef M4_HPP_
+#define M4_HPP_
+
+#include <cstdint>
+typedef uint32_t node_t;
+typedef char dir_t; // so that it can be mapped to keys
 
 typedef struct prim {
 	unsigned int node;
-	char dir;
+	dir_t dir;
 } prim;
 
 class m4 {
@@ -16,14 +24,17 @@ class m4 {
 		int lenx, leny, lenz, lenw;
 
 		// maze data
-		// total size is [lenx+1][leny+1][lenz+1][lenw+1]
-		char**** arry;
+		// total size is [lenx][leny][lenz][lenw]
+		node_t**** arry;
 	
 		// user location
-		int x, y, z, w;
+		int x,y,z,w;
 	
 		// goal coordinates
-		int gx, gy, gz, gw;
+		int gx,gy,gz,gw;
+		
+		// axes
+		int a0, a1, a2, a3;
 
 		// constructor
 		m4 (void);
@@ -55,21 +66,24 @@ class m4 {
 		void print_clr (void);
 		void print_all (void);
 		void print_man (void);
+		void print_data (void);
 		
 		// user input
 		void get_size (void);
 		bool control (void);
+		// dimension swap
+		void d_swap (int d1, int d2);
 
 		// checks
 		bool inline valid (void);
 		bool inline valid (int i, int j, int k, int h);
-		void inline set_flag (char flag);
-		void inline set_flag (int i, int j, int k, int h, char flag);
-		void inline clear_flag (char flag);
-		void inline clear_flag (int i, int j, int k, int h, char flag);
-		void inline clear_flag_all (char flag);
-		bool inline has_flag (char flag);
-		bool inline has_flag (int i, int j, int k, int h, char flag);
+		void inline set_flag (node_t flag);
+		void inline set_flag (int i, int j, int k, int h, node_t flag);
+		void inline clear_flag (node_t flag);
+		void inline clear_flag (int i, int j, int k, int h, node_t flag);
+		void inline clear_flag_all (node_t flag);
+		bool inline has_flag (node_t flag);
+		bool inline has_flag (int i, int j, int k, int h, node_t flag);
 		// dir one of XD, XU, etc
 		bool inline can_move (char dir);
 		bool inline can_move (int i, int j, int k, int h, char dir);
@@ -92,8 +106,4 @@ class m4 {
 		bool kill_node (void);
 };
 
-#endif // M4_H_
-
-////////////////////////////////
-// END M4.HPP
-////////////////////////////////
+#endif // M4_HPP_
