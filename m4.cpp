@@ -1,6 +1,10 @@
-////////////////////////////////
-// BEG M4.CPP
-////////////////////////////////
+/*
+ * FILE:    m4.cpp
+ * PURPOSE: 4D maze class
+ * AUTHOR:  Geoffrey Card
+ * DATE:    ????-??-?? - 2014-07-11
+ * NOTES:   d-swap cannot handle multiples of a dimension (an == am)
+ */
 
 #include <cstdio>
 #include <cstdlib>
@@ -16,16 +20,20 @@ using namespace std;
 
 void m4::do_stuff (void)
 {
-	lenx=3,leny=3,lenz=3,lenw=1;
-
+	lenx=5,leny=5,lenz=1,lenw=1;
+	a0=0, a1=1, a2=2, a3=3;
 	gen();
 	
+	//box();
+	//cage();
+	//random_build();
+	//depth_build();
+	//breadth_build();
 	hunt_and_kill_build();
 	
+	print_data();
 	print_all();
-	
-	control();
-	
+		
 	degen();
 }
 
@@ -42,6 +50,8 @@ void m4::play (void)
 		gen();
 		
 		// build, choose one
+		//box();
+		//cage();
 		//random_build();
 		//depth_build();
 		//breadth_build();
@@ -74,6 +84,8 @@ void m4::play (int xs, int ys, int zs, int ws)
 		gen();
 		
 		// build, choose one
+		//box();
+		//cage();
 		//random_build();
 		//depth_build();
 		//breadth_build();
@@ -144,11 +156,12 @@ void m4::test (int n, int xs, int ys, int zs, int ws)
 m4::m4 (void)
 {
 	// all blank
-	lenx=0, leny=0, lenz=0, lenw=0;	
+	lenx=0,leny=0,lenz=0,lenw=0;	
 	arry=NULL;
-	x=0, y=0, z=0, w=0;
-	gx=0, gy=0, gz=0, gw=0;
-
+	x=0,y=0,z=0,w=0;
+	gx=0,gy=0,gz=0,gw=0;
+	a0=0,a1=1,a2=2,a3=3;
+	
 	// seed rand
 	srand((int) time(NULL));
 }
@@ -166,22 +179,22 @@ void m4::gen (void)
 {
 	degen();
 	// keep size within bounds
-	if (lenx < SIZE_MIN) lenx = SIZE_MIN;
-	if (lenx > SIZE_MAX) lenx = SIZE_MAX;
-	if (leny < SIZE_MIN) leny = SIZE_MIN;
-	if (leny > SIZE_MAX) leny = SIZE_MAX;
-	if (lenz < SIZE_MIN) lenz = SIZE_MIN;
-	if (lenz > SIZE_MAX) lenz = SIZE_MAX;
-	if (lenw < SIZE_MIN) lenw = SIZE_MIN;
-	if (lenw > SIZE_MAX) lenw = SIZE_MAX;
+	if (lenx < LEN_MIN) lenx = LEN_MIN;
+	if (lenx > LEN_MAX) lenx = LEN_MAX;
+	if (leny < LEN_MIN) leny = LEN_MIN;
+	if (leny > LEN_MAX) leny = LEN_MAX;
+	if (lenz < LEN_MIN) lenz = LEN_MIN;
+	if (lenz > LEN_MAX) lenz = LEN_MAX;
+	if (lenw < LEN_MIN) lenw = LEN_MIN;
+	if (lenw > LEN_MAX) lenw = LEN_MAX;
 	// allocate
-	arry = (char****) calloc(lenx+1,sizeof(char***));
+	arry = (node_t****) calloc(lenx+1,sizeof(node_t***));
 	for (int i = 0; i < lenx+1; i++) {
-		arry[i] = (char***) calloc(leny+1,sizeof(char**));
+		arry[i] = (node_t***) calloc(leny+1,sizeof(node_t**));
 		for (int j = 0; j < leny+1; j++) {
-			arry[i][j] = (char**) calloc(lenz+1,sizeof(char*));
+			arry[i][j] = (node_t**) calloc(lenz+1,sizeof(node_t*));
 			for (int k = 0; k < lenz+1; k++) {
-				arry[i][j][k] = (char*) calloc(lenw+1,sizeof(char));
+				arry[i][j][k] = (node_t*) calloc(lenw+1,sizeof(node_t));
 			}
 		}
 	}
@@ -202,10 +215,10 @@ void m4::degen (void)
 		free(arry);
 		arry = NULL;
 	
-		lenx = 0;
-		leny = 0;
-		lenz = 0;
-		lenw = 0;
+		lenx=0;
+		leny=0;
+		lenz=0;
+		lenw=0;
 	}	
 }
 
@@ -215,7 +228,6 @@ void m4::degen (void)
 
 void m4::frame (void)
 {
-	int i=0, j=0, k=0, h=0;
 	// make outer walls
 	/*
 	for (i = 1; i < lenx; i++) {
@@ -223,76 +235,47 @@ void m4::frame (void)
 			for (k = 1; k < lenz; k++) {
 				for (h = 1; h < lenw; h++) {
 	*/
-	// XD
-	i = 0;
-	for (j = 0; j < leny; j++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] |= XD;
+	// XD & XU
+	for (int j = 0; j < leny; j++) {
+		for (int k = 0; k < lenz; k++) {
+			for (int h = 0; h < lenw; h++) {
+				// XD
+				arry[0][j][k][h] |= XD;
+				// XU
+				arry[lenx-1][j][k][h] |= XU;
 			}
 		}
 	}
-	// YD
-	j = 0;
-	for (i = 0; i < lenx; i++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] |= YD;
+	// YD & YU
+	for (int i = 0; i < lenx; i++) {
+		for (int k = 0; k < lenz; k++) {
+			for (int h = 0; h < lenw; h++) {
+				// YD
+				arry[i][0][k][h] |= YD;
+				// YU
+				arry[i][leny-1][k][h] |= YU;
 			}
 		}
 	}
-	// ZD
-	k = 0;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] |= ZD;
+	// ZD & ZU
+	for (int i = 0; i < lenx; i++) {
+		for (int j = 0; j < leny; j++) {
+			for (int h = 0; h < lenw; h++) {
+				// ZD
+				arry[i][j][0][h] |= ZD;
+				// ZU
+				arry[i][j][lenz-1][h] |= ZU;
 			}
 		}
 	}
-	// WD
-	h = 0;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (k = 0; k < lenz; k++) {
-				arry[i][j][k][h] |= WD;
-			}
-		}
-	}
-
-	// XU
-	i = lenx;
-	for (j = 0; j < leny; j++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] = XD;
-			}
-		}
-	}
-	// YU
-	j = leny;
-	for (i = 0; i < lenx; i++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] = YD;
-			}
-		}
-	}
-	// ZU
-	k = lenz;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] = ZD;
-			}
-		}
-	}
-	// WU
-	h = lenw;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (k = 0; k < lenz; k++) {
-				arry[i][j][k][h] = WD;
+	// WD & WU
+	for (int i = 0; i < lenx; i++) {
+		for (int j = 0; j < leny; j++) {
+			for (int k = 0; k < lenz; k++) {
+				// WD
+				arry[i][j][k][0] |= WD;
+				// WU
+				arry[i][j][k][lenw-1] |= WU;
 			}
 		}
 	}
@@ -300,155 +283,31 @@ void m4::frame (void)
 
 void m4::box (void)
 {
-	int i=0, j=0, k=0, h=0;
-	// make outer walls
-	for (i = 1; i < lenx; i++) {
-		for (j = 1; j < leny; j++) {
-			for (k = 1; k < lenz; k++) {
-				for (h = 1; h < lenw; h++) {
-					arry[i][j][k][h] = 0;
-				}
-			}
-		}
-	}
-	// XD
-	i = 0;
-	for (j = 0; j < leny; j++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] |= XD;
-			}
-		}
-	}
-	// YD
-	j = 0;
-	for (i = 0; i < lenx; i++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] |= YD;
-			}
-		}
-	}
-	// ZD
-	k = 0;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] |= ZD;
-			}
-		}
-	}
-	// WD
-	h = 0;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (k = 0; k < lenz; k++) {
-				arry[i][j][k][h] |= WD;
-			}
-		}
-	}
-
-	// XU
-	i = lenx;
-	for (j = 0; j < leny; j++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] = XD;
-			}
-		}
-	}
-	// YU
-	j = leny;
-	for (i = 0; i < lenx; i++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] = YD;
-			}
-		}
-	}
-	// ZU
-	k = lenz;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] = ZD;
-			}
-		}
-	}
-	// WU
-	h = lenw;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (k = 0; k < lenz; k++) {
-				arry[i][j][k][h] = WD;
-			}
-		}
-	}
+	empty();
+	frame();
 }
 
 void m4::cage (void)
 {
-	int i=0, j=0, k=0, h=0;
 	// build walls
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (k = 0; k < lenz; k++) {
-				for (h = 0; h < lenw; h++) {
-					arry[i][j][k][h] = XD;
-					arry[i][j][k][h] |= YD;
-					arry[i][j][k][h] |= ZD;
-					arry[i][j][k][h] |= WD;
+	for (int i = 0; i < lenx; i++) {
+		for (int j = 0; j < leny; j++) {
+			for (int k = 0; k < lenz; k++) {
+				for (int h = 0; h < lenw; h++) {
+					arry[i][j][k][h] = XD|YD|ZD|WD | XU|YU|ZU|WU;
 				}
 			}
 		}
 	}
-	
-	// XU
-	i = lenx;
-	for (j = 0; j < leny; j++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] = XD;
-			}
-		}
-	}
-	// YU
-	j = leny;
-	for (i = 0; i < lenx; i++) {
-		for (k = 0; k < lenz; k++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] = YD;
-			}
-		}
-	}
-	// ZU
-	k = lenz;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (h = 0; h < lenw; h++) {
-				arry[i][j][k][h] = ZD;
-			}
-		}
-	}
-	// WU
-	h = lenw;
-	for (i = 0; i < lenx; i++) {
-		for (j = 0; j < leny; j++) {
-			for (k = 0; k < lenz; k++) {
-				arry[i][j][k][h] = WD;
-			}
-		}
-	}	
 }
 
 void m4::empty (void)
 {
-	int i=0, j=0, k=0, h=0;
 	// make outer walls
-	for (i = 0; i < lenx+1; i++) {
-		for (j = 0; j < leny+1; j++) {
-			for (k = 0; k < lenz+1; k++) {
-				for (h = 0; h < lenw+1; h++) {
+	for (int i = 0; i < lenx; i++) {
+		for (int j = 0; j < leny; j++) {
+			for (int k = 0; k < lenz; k++) {
+				for (int h = 0; h < lenw; h++) {
 					arry[i][j][k][h] = 0;
 				}
 			}
@@ -469,21 +328,22 @@ void m4::print_clr (void)
 
 void m4::print_man (void)
 {
+	char alet[] = {'X', 'Y', 'Z', 'W'};
 	printf(
 		"  axes: \n"
-		"  +---------------------Z \n"
+		"  +---------------------%c \n"
 		"  |                       \n"
-		"  |  +----X     +----X    \n"
+		"  |  +----%c     +----%c    \n"
 		"  |  |          |         \n"
 		"  |  |          |         \n"
-		"  |  Y          Y         \n"
+		"  |  %c          %c         \n"
 		"  |                       \n"
-		"  |  +----X     +----X    \n"
+		"  |  +----%c     +----%c    \n"
 		"  |  |          |         \n"
 		"  |  |          |         \n"
-		"  |  Y          Y         \n"
+		"  |  %c          %c         \n"
 		"  |                       \n"
-		"  W                       \n"
+		"  %c                       \n"
 		"  \n"
 		"  controls: \n"
 		"  X+   %c \n"
@@ -495,168 +355,234 @@ void m4::print_man (void)
 		"  W+   %c \n"
 		"  W-   %c \n"
 		"  new  ` \n"
+		"  d-swap: (all swap with %c) \n"
+		"  X    %c \n"
+		"  Y    %c \n"
+		"  Z    %c \n"
+		"  W    %c \n"
 		"  type it then hit enter \n"
 		"  \n"
 		"  USER: %s \n"
 		"  GOAL: %s \n"
 		"  \n",
-		XP, XM, YP, YM, ZP, ZM, WP, WM, USER, GOAL);
+		alet[a3],
+		alet[a0], alet[a0], 
+		alet[a1], alet[a1], 
+		alet[a0], alet[a0], 
+		alet[a1], alet[a1], 
+		alet[a2], 
+		XP, XM, YP, YM, ZP, ZM, WP, WM, 
+		DSWAPX, DSWAPX, DSWAPY, DSWAPZ, DSWAPW, 
+		USER, GOAL);
 }
 
+/*
+    ::YD::  ::::::  
+    XD  XU  ::ZU::  
+    ::YU::  ::::::  
+                    
+    ::::::  ......  
+    ::WU::  ......  
+    ::::::  ......  
+                    
+*/ 
 void m4::print_all (void)
 {
 	// debug
-	//printf("print_m2, %0X, %i, %i\n", arry, lenx, leny);
-	// W
-	for (int h = 0; h < lenw; h++) {
-		
-		// Y
-		if (h != 0) {
-			for (int j = 0; j < leny+1; j++) {
+	//printf("address %0X\nlenx %i\nleny %i\nlenz %i\nlenw %i\n", arry, lenx, leny, lenz, lenw);
+	//printf("a1 = %i, a2 = %i, a3 = %i, a4 = %i\n", a1, a2,a3, a4);
+	int aint[] = {0, 0, 0, 0};
+	const int alen[] = {lenx, leny, lenz, lenw};
+	const node_t awd[] = {XD, YD, ZD, WD};
+	const node_t awu[] = {XU, YU, ZU, WU};
 	
-				// Z
-				for (int k = 0; k < lenz; k++) {
-					if (k != 0) {
-						// nothing
-						// X
-						for (int i = 0; i < lenx+1; i++) {
-							printf("%s", SPACE);
-							if (i != lenx) {
-								printf("%s", SPACE);
-							}
-						}
-						// HSKIP	
-						printf("%s", HSKIP);			
+	for (aint[a3]=0; aint[a3]<alen[a3]; aint[a3]++) {
+		for (aint[a1]=0; aint[a1]<alen[a1]; aint[a1]++) {
+			
+			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+				// BLOCK 1
+				// ROW 1
+				// COL 1
+				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					printf("%s", WALL);
+					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a1] ? WALL : SPACE);
+				}
+				printf("%s", WALL);
+				
+				// BLOCK 1
+				// ROW 1
+				// COL 2
+				if (aint[a2]<alen[a2]-1) {
+					printf("%s", HSKIP);
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						printf("%s", WALL);
+						printf("%s", WALL);
 					}
+					printf("%s", WALL);
+					printf("%s", HSKIP);
+				}
+			}
+			printf("\n");
+			
+			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+				// BLOCK 1
+				// ROW 2
+				// COL 1
+				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a0] ? WALL : SPACE);
+					// USER/GOAL/ETC
+					if (x==aint[0] && y==aint[1] && z==aint[2] && w==aint[3]) {
+						printf("%s", USER);
+					} else if (has_flag(aint[0],aint[1],aint[2],aint[3],F_GOAL)) {
+						printf("%s", GOAL);
+					} else {
+						printf("%s", SPACE);
+					}
+				}
+				aint[a0] = alen[a0]-1;
+				printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a0] ? WALL : SPACE);
+				
+				// BLOCK 1
+				// ROW 2
+				// COL 2
+				if (aint[a2]<alen[a2]-1) {
+					printf("%s", HSKIP);
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						printf("%s", WALL);
+						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a2] ? WALL : SPACE);
+					}
+					printf("%s", WALL);
+					printf("%s", HSKIP);
+				}
+			}
+			printf("\n");
+		}
+		
+		aint[a1] = alen[a1]-1;
+		for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+			// BLOCK 1
+			// ROW 3
+			// COL 1
+			for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+				printf("%s", WALL);
+				printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a1] ? WALL : SPACE);
+			}
+			printf("%s", WALL);
+				
+			// BLOCK 1
+			// ROW 3
+			// COL 2
+			if (aint[a2]<alen[a2]-1) {
+				printf("%s", HSKIP);
+				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					printf("%s", WALL);
+					printf("%s", WALL);
+				}
+				printf("%s", WALL);
+				printf("%s", HSKIP);
+			}
+		}
+		printf("\n");
+		
+		if (aint[a3]<alen[a3]-1) {
+			printf("%s", VSKIP);
+			
+			for (aint[a1]=0; aint[a1]<alen[a1]; aint[a1]++) {
+				for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+					// BLOCK 2
+					// ROW 1
+					// COL 1
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						printf("%s", WALL);
+						printf("%s", WALL);
+					}
+					printf("%s", WALL);
 					
-					// teeth to the east
-					if (k != lenz) {
-						// floor WD
-						// X
-						for (int i = 0; i < lenx+1; i++) {
-							printf("%s", WALL);
-							if (i != lenx) {			
-								printf("%s", WALL);
-							}
+					// BLOCK 2
+					// ROW 1
+					// COL 2
+					if (aint[a2]<alen[a2]-1) {
+						printf("%s", HSKIP);
+						for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+							printf("%s", SPACE);
+							printf("%s", SPACE);
 						}
-						// HSKIP
+						printf("%s", SPACE);
 						printf("%s", HSKIP);
 					}
 				}
 				printf("\n");
-			
-				// no teeth to the south
-				if (j != leny) {
-					// Z
-					for (int k = 0; k < lenz; k++) {
-						if (k != 0) {
-							// nothing
-							// X
-							for (int i = 0; i < lenx+1; i++) {
-								printf("%s", SPACE);
-								if (i != lenx) {
-									printf("%s", SPACE);
-								}
-							}
-							// HSKIP
-							printf("%s", HSKIP);
+				
+				for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+					// BLOCK 2
+					// ROW 2
+					// COL 1
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						printf("%s", WALL);
+						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a3] ? WALL : SPACE);
+					}
+					printf("%s", WALL);
+					
+					// BLOCK 2
+					// ROW 2
+					// COL 2
+					if (aint[a2]<alen[a2]-1) {
+						printf("%s", HSKIP);
+						for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+							printf("%s", SPACE);
+							printf("%s", SPACE);
 						}
-						
-						// floor WD to the north
-						// X
-						for (int i = 0; i < lenx+1; i++) {
-							printf("%s", WALL);
-							if (i != lenx) {
-								printf("%s", arry[i][j][k][h]&WD ? WALL : SPACE);
-							}
-						}
-						// HSKIP
+						printf("%s", SPACE);
 						printf("%s", HSKIP);
 					}
 				}
-				printf("\n");	
+				printf("\n");
 			}
-			// VSKIP
-		}
-			
-		// Y
-		for (int j = 0; j < leny+1; j++) {	
-	
-			// Z
-			for (int k = 0; k < lenz; k++) {
-				if (k != 0) {
-					// floor
-					// X
-					for (int i = 0; i < lenx+1; i++) {
-						printf("%s", WALL);
-						if (i != lenx) {
-							printf("%s", WALL);
-						}
+			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+				// BLOCK 2
+				// ROW 3
+				// COL 1
+				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					printf("%s", WALL);
+					printf("%s", WALL);
+				}
+				printf("%s", WALL);
+				
+				// BLOCK 2
+				// ROW 3
+				// COL 2
+				if (aint[a2]<alen[a2]-1) {
+					printf("%s", HSKIP);
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						printf("%s", SPACE);
+						printf("%s", SPACE);
 					}
-					// HSKIP
+					printf("%s", SPACE);
 					printf("%s", HSKIP);
 				}
-				
-				// halls YD to the north
-				// X
-				for (int i = 0; i < lenx+1; i++) {
-					printf("%s", WALL);
-					if (i != lenx) {
-						printf("%s", arry[i][j][k][h]&YD ? WALL : SPACE);
-					}
-				}
-				// HSKIP
-				printf("%s", HSKIP);
 			}
 			printf("\n");
-	
-			if (j != leny) {
-				// Z
-				for (int k = 0; k < lenz; k++) {
-					if (k != 0) {
-						// X
-						for (int i = 0; i < lenx+1; i++) {
-							printf("%s", WALL);
-							if (i != lenx) {
-								printf("%s", arry[i][j][k][h]&ZD ? WALL : SPACE);
-							}
-						}
-						// HSKIP
-						printf("%s", HSKIP);
-					}
+			printf("%s", VSKIP);
+		}
+	}
+}
 
-					// halls XD to the west
-					// X
-					for (int i = 0; i < lenx+1; i++) {
-						printf("%s", arry[i][j][k][h]&XD ? WALL : SPACE);
-						if (i != lenx) {
-							// this is on one important space
-							// user
-							if (i == x && j == y && k == z && h == w) {
-								printf("%s", USER);
-							}
-							// goal
-							else if (has_flag(i,j,k,h,F_GOAL)) {
-								printf("%s", GOAL);
-							}
-							// temp
-							else if (has_flag(i,j,k,h,F_TEMP)) {
-								printf("%s", TEMP);
-							}
-							else {
-								printf("%s", SPACE);
-							}
-						}
-					}
-					// HSKIP
-					printf("%s", HSKIP);
+void m4::print_data (void)
+{
+	for (int h=0; h<lenw; h++) {
+		for (int j=0; j<leny; j++) {
+			for (int k=0; k<lenz; k++) {
+				for (int i=0; i<lenx; i++) {
+					printf("%08X  ", arry[i][j][k][h]);
+				}
+				if (k<lenz-1) {
+					printf("  ");
 				}
 			}
-			printf("\n");		
+			printf("\n");
 		}
-		// VSKIP
+		printf("\n");
 	}
-	
 }
 
 ////////////////////////////////
@@ -675,16 +601,16 @@ void m4::get_size (void)
 	// get size
 	lenx = 1; leny = 1; lenz = 1, lenw = 1;
 	if (n >= 1) {
-		printf("x size (<=%i):\n", SIZE_MAX);
+		printf("x size (<=%i):\n", LEN_MAX);
 		scanf("%i", &lenx);
 		if (n >= 2) {
-			printf("y size (<=%i):\n", SIZE_MAX);
+			printf("y size (<=%i):\n", LEN_MAX);
 			scanf("%i", &leny);
 			if (n >= 3) {
-				printf("z size (<=%i):\n", SIZE_MAX);
+				printf("z size (<=%i):\n", LEN_MAX);
 				scanf("%i", &lenz);
 				if (n >= 4) {
-					printf("w size (<=%i):\n", SIZE_MAX);
+					printf("w size (<=%i):\n", LEN_MAX);
 					scanf("%i", &lenw);
 				}
 			}
@@ -694,7 +620,7 @@ void m4::get_size (void)
 
 bool m4::control (void)
 {
-	x = 0, y = 0, z = 0, w = 0;
+	x=0,y=0,z=0,w=0;
 	
 	bool cont = true;
 	char comm = ' ';
@@ -707,30 +633,30 @@ bool m4::control (void)
 		scanf("%c", &comm);
 		if (comm == RESET) {
 			cont = false;
-		}
-		else if (comm == XM && can_move(comm)) {
+		} else if (comm == XM && can_move(comm)) {
 			x--;
-		}
-		else if (comm == XP && can_move(comm)) {
+		} else if (comm == XP && can_move(comm)) {
 			x++;
-		}
-		else if (comm == YM && can_move(comm)) {
+		} else if (comm == YM && can_move(comm)) {
 			y--;
-		}
-		else if (comm == YP && can_move(comm)) {
+		} else if (comm == YP && can_move(comm)) {
 			y++;
-		}
-		else if (comm == ZM && can_move(comm)) {
+		} else if (comm == ZM && can_move(comm)) {
 			z--;
-		}
-		else if (comm == ZP && can_move(comm)) {
+		} else if (comm == ZP && can_move(comm)) {
 			z++;
-		}
-		else if (comm == WM && can_move(comm)) {
+		} else if (comm == WM && can_move(comm)) {
 			w--;
-		}
-		else if (comm == WP && can_move(comm)) {
+		} else if (comm == WP && can_move(comm)) {
 			w++;
+		} else if (comm == DSWAPX) {
+			d_swap(DIMX, DIMX);
+		} else if (comm == DSWAPY) {
+			d_swap(DIMX, DIMY);
+		} else if (comm == DSWAPZ) {
+			d_swap(DIMX, DIMZ);
+		} else if (comm == DSWAPW) {
+			d_swap(DIMX, DIMW);
 		}
 		
 		if (has_flag(F_GOAL)) {
@@ -751,6 +677,67 @@ bool m4::control (void)
 	return false;
 }
 
+void m4::d_swap (int d1, int d2)
+{
+	if (d1 == DIMX) {
+		if (d2 == DIMY) {
+			int temp = a0;
+			a0 = a1;
+			a1 = temp;
+		} else if (d2 == DIMZ) {
+			int temp = a0;
+			a0 = a2;
+			a2 = temp;
+		} else if (d2 == DIMW) {
+			int temp = a0;
+			a0 = a3;
+			a3 = temp;
+		}
+	} else if (d1 == DIMY) {
+		if (d2 == DIMX) {
+			int temp = a1;
+			a1 = a0;
+			a0 = temp;
+		} else if (d2 == DIMZ) {
+			int temp = a1;
+			a1 = a2;
+			a2 = temp;
+		} else if (d2 == DIMW) {
+			int temp = a1;
+			a1 = a3;
+			a3 = temp;
+		}
+	} else if (d1 == DIMZ) {
+		if (d2 == DIMX) {
+			int temp = a2;
+			a2 = a0;
+			a0 = temp;
+		} else if (d2 == DIMY) {
+			int temp = a2;
+			a2 = a1;
+			a1 = temp;
+		} else if (d2 == DIMW) {
+			int temp = a2;
+			a2 = a3;
+			a3 = temp;
+		}
+	} else if (d1 == DIMW) {
+		if (d2 == DIMX) {
+			int temp = a3;
+			a3 = a0;
+			a0 = temp;
+		} else if (d2 == DIMY) {
+			int temp = a3;
+			a3 = a1;
+			a1 = temp;
+		} else if (d2 == DIMZ) {
+			int temp = a3;
+			a3 = a2;
+			a2 = temp;
+		}
+	}
+}
+
 ////////////////////////////////
 //          checks            //
 ////////////////////////////////
@@ -765,27 +752,27 @@ bool inline m4::valid (int i, int j, int k, int h)
 	return 0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw ? true : false; 
 }
 
-void inline m4::set_flag (char flag)
+void inline m4::set_flag (node_t flag)
 {
 	if (valid(x,y,z,w)) arry[x][y][z][w] |= flag;
 }
 
-void inline m4::set_flag (int i, int j, int k, int h, char flag)
+void inline m4::set_flag (int i, int j, int k, int h, node_t flag)
 {
 	if (valid(i,j,k,h)) arry[i][j][k][h] |= flag;
 }
 
-void inline m4::clear_flag (char flag)
+void inline m4::clear_flag (node_t flag)
 {
 	if (valid(x,y,z,w)) arry[x][y][z][w] &= ~flag;
 }
 
-void inline m4::clear_flag (int i, int j, int k, int h, char flag)
+void inline m4::clear_flag (int i, int j, int k, int h, node_t flag)
 {
 	if (valid(i,j,k,h)) arry[i][j][k][h] &= ~flag;
 }
 
-void inline m4::clear_flag_all (char flag)
+void inline m4::clear_flag_all (node_t flag)
 {
 	for (int i = 0; i < lenx; i++) {
 		for (int j = 0; j < leny; j++) {
@@ -798,12 +785,12 @@ void inline m4::clear_flag_all (char flag)
 	}
 }
 
-bool inline m4::has_flag (char flag)
+bool inline m4::has_flag (node_t flag)
 {
 	return valid(x,y,z,w) && arry[x][y][z][w]&flag ? true : false;
 }
 
-bool inline m4::has_flag (int i, int j, int k, int h, char flag)
+bool inline m4::has_flag (int i, int j, int k, int h, node_t flag)
 {
 	return valid(i,j,k,h) && arry[i][j][k][h]&flag ? true : false;
 }
@@ -814,19 +801,19 @@ bool inline m4::can_move(char dir)
 		case XM:
 			return 0 < x && !(arry[x][y][z][w]&XD) ? true : false;
 		case XP:
-			return x < lenx && !(arry[x+1][y][z][w]&XD) ? true : false;
+			return x < lenx-1 && !(arry[x][y][z][w]&XU) ? true : false;
 		case YM:
 			return 0 < y && !(arry[x][y][z][w]&YD) ? true : false;
 		case YP:
-			return y < leny && !(arry[x][y+1][z][w]&YD) ? true : false;
+			return y < leny-1 && !(arry[x][y][z][w]&YU) ? true : false;
 		case ZM:
 			return 0 < z && !(arry[x][y][z][w]&ZD) ? true : false;
 		case ZP:
-			return z < lenz && !(arry[x][y][z+1][w]&ZD) ? true : false;
+			return z < lenz-1 && !(arry[x][y][z][w]&ZU) ? true : false;
 		case WM:
 			return 0 < w && !(arry[x][y][z][w]&WD) ? true : false;
 		case WP:
-			return w < lenw && !(arry[x][y][z][w+1]&WD) ? true : false;
+			return w < lenw-1 && !(arry[x][y][z][w]&WU) ? true : false;
 		default:
 			return false;
 	}
@@ -838,19 +825,19 @@ bool inline m4::can_move(int i, int j, int k, int h, char dir)
 		case XM:
 			return 0 < i && !(arry[i][j][k][h]&XD) ? true : false;
 		case XP:
-			return i < lenx && !(arry[i+1][j][k][h]&XD) ? true : false;
+			return i < lenx-1 && !(arry[i][j][k][h]&XU) ? true : false;
 		case YM:
 			return 0 < j && !(arry[i][j][k][h]&YD) ? true : false;
 		case YP:
-			return j < leny && !(arry[i][j+1][k][h]&YD) ? true : false;
+			return j < leny-1 && !(arry[i][j][k][h]&YU) ? true : false;
 		case ZM:
 			return 0 < k && !(arry[i][j][k][h]&ZD) ? true : false;
 		case ZP:
-			return k < lenz && !(arry[i][j][k+1][h]&ZD) ? true : false;
+			return k < lenz-1 && !(arry[i][j][k][h]&ZU) ? true : false;
 		case WM:
 			return 0 < h && !(arry[i][j][k][h]&WD) ? true : false;
 		case WP:
-			return h < lenw && !(arry[i][j][k][h+1]&WD) ? true : false;
+			return h < lenw-1 && !(arry[i][j][k][h]&WU) ? true : false;
 		default:
 			return false;
 	}
@@ -859,9 +846,10 @@ bool inline m4::can_move(int i, int j, int k, int h, char dir)
 bool m4::smash(char dir) {
 	switch(dir) {
 		case XM:
-			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (valid(x-1,y,z,w)) {
 				// smash
 				arry[x][y][z][w] &= ~XD;
+				arry[x-1][y][z][w] &= ~XU;
 				// did smash
 				return true;
 			} else {
@@ -869,25 +857,21 @@ bool m4::smash(char dir) {
 				return false;
 			}
 		case XP:
-			// XM for x+1
-			x++;
-			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (valid(x+1,y,z,w)) {
 				// smash
-				arry[x][y][z][w] &= ~XD;
-				// return to x
-				x--;
+				arry[x][y][z][w] &= ~XU;
+				arry[x+1][y][z][w] &= ~XD;
 				// did smash
 				return true;
 			} else {
-				// return to x
-				x--;
 				// did not smash
 				return false;
 			}
 		case YM:
-			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (valid(x,y-1,z,w)) {
 				// smash
 				arry[x][y][z][w] &= ~YD;
+				arry[x][y-1][z][w] &= ~YU;
 				// did smash
 				return true;
 			} else {
@@ -895,25 +879,21 @@ bool m4::smash(char dir) {
 				return false;
 			}
 		case YP:
-			// YM for y+1
-			y++;
-			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (valid(x,y+1,z,w)) {
 				// smash
-				arry[x][y][z][w] &= ~YD;
-				// return to y
-				y--;
+				arry[x][y][z][w] &= ~YU;
+				arry[x][y+1][z][w] &= ~YD;
 				// did smash
 				return true;
 			} else {
-				// return to y
-				y--;
 				// did not smash
 				return false;
 			}
 		case ZM:
-			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (valid(x,y,z-1,w)) {
 				// smash
 				arry[x][y][z][w] &= ~ZD;
+				arry[x][y][z-1][w] &= ~ZU;
 				// did smash
 				return true;
 			} else {
@@ -921,25 +901,21 @@ bool m4::smash(char dir) {
 				return false;
 			}
 		case ZP:
-			// ZM for z+1
-			z++;
-			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (valid(x,y,z+1,w)) {
 				// smash
-				arry[x][y][z][w] &= ~ZD;
-				// return to z
-				z--;
+				arry[x][y][z][w] &= ~ZU;
+				arry[x][y][z+1][w] &= ~ZD;
 				// did smash
 				return true;
 			} else {
-				// return to z
-				z--;
 				// did not smash
 				return false;
 			}
 		case WM:
-			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (valid(x,y,z,w-1)) {
 				// smash
 				arry[x][y][z][w] &= ~WD;
+				arry[x][y][z][w-1] &= ~WU;
 				// did smash
 				return true;
 			} else {
@@ -947,18 +923,13 @@ bool m4::smash(char dir) {
 				return false;
 			}
 		case WP:
-			// WM for w+1
-			w++;
-			if (0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw) {
+			if (valid(x,y,z,w+1)) {
 				// smash
-				arry[x][y][z][w] &= ~WD;
+				arry[x][y][z][w] &= ~WU;
+				arry[x][y][z][w+1] &= ~WD;
 				// return to w
-				w--;
-				// did smash
 				return true;
 			} else {
-				// return to w
-				w--;
 				// did not smash
 				return false;
 			}
@@ -970,65 +941,65 @@ bool m4::smash(char dir) {
 bool m4::smash(int i, int j, int k, int h, char dir) {
 	switch(dir) {
 		case XM:
-			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (valid(i-1,j,k,h)) {
 				arry[i][j][k][h] &= ~XD;
+				arry[i-1][j][k][h] &= ~XU;
 				return true;
 			} else {
 				return false;
 			}
 		case XP:
-			// XM for i+1
-			i++;
-			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
-				arry[i][j][k][h] &= ~XD;
+			if (valid(i+1,j,k,h)) {
+				arry[i][j][k][h] &= ~XU;
+				arry[i+1][j][k][h] &= ~XD;
 				return true;
 			} else {
 				return false;
 			}
 		case YM:
-			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (valid(i,j-1,k,h)) {
 				arry[i][j][k][h] &= ~YD;
+				arry[i][j-1][k][h] &= ~YU;
 				return true;
 			} else {
 				return false;
 			}
 		case YP:
-			// YM for j+1
-			j++;
-			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
-				arry[i][j][k][h] &= ~YD;
+			if (valid(i,j+1,k,h)) {
+				arry[i][j][k][h] &= ~YU;
+				arry[i][j+1][k][h] &= ~YD;
 				return true;
 			} else {
 				return false;
 			}
 		case ZM:
-			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (valid(i,j,k-1,h)) {
 				arry[i][j][k][h] &= ~ZD;
+				arry[i][j][k-1][h] &= ~ZU;
 				return true;
 			} else {
 				return false;
 			}
 		case ZP:
-			// ZM for k+1
-			k++;
-			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
-				arry[i][j][k][h] &= ~ZD;
+			if (valid(i,j,k+1,h)) {
+				arry[i][j][k][h] &= ~ZU;
+				arry[i][j][k+1][h] &= ~ZD;
 				return true;
 			} else {
 				return false;
 			}
 		case WM:
-			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
+			if (valid(i,j,k,h-1)) {
 				arry[i][j][k][h] &= ~WD;
+				arry[i][j][k][h-1] &= ~WU;
 				return true;
 			} else {
 				return false;
 			}
 		case WP:
-			// WM for h+1
-			h++;
-			if (0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw) {
-				arry[i][j][k][h] &= ~WD;
+			if (valid(i,j,k,h+1)) {
+				arry[i][j][k][h] &= ~WU;
+				arry[i][j][k][h+1] &= ~WD;
 				return true;
 			} else {
 				return false;
@@ -1270,15 +1241,15 @@ void m4::random_build (void)
 	//int c = -1;
 	//while (c < 0) {
 		// completely random
-		empty();
+		cage();
 		for (int i = 0; i < lenx; i++) {
 			for (int j = 0; j < leny; j++) {
 				for (int k = 0; k < lenz; k++) {
 					for (int h = 0; h < lenw; h++) {
-						if (rand() > RAND_MAX/2) arry[i][j][k][h] |= XD;
-						if (rand() > RAND_MAX/2) arry[i][j][k][h] |= YD;
-						if (rand() > RAND_MAX/2) arry[i][j][k][h] |= ZD;
-						if (rand() > RAND_MAX/2) arry[i][j][k][h] |= WD;
+						if (rand() > RAND_MAX/2) smash(i,j,k,h,XM);
+						if (rand() > RAND_MAX/2) smash(i,j,k,h,YM);
+						if (rand() > RAND_MAX/2) smash(i,j,k,h,ZM);
+						if (rand() > RAND_MAX/2) smash(i,j,k,h,WM);
 					}
 				}
 			}
@@ -1290,7 +1261,7 @@ void m4::random_build (void)
 	//}
 
 	// start
-	x=0, y=0, z=0, w=0;
+	x=0,y=0,z=0,w=0;
 	// goal
 	gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
 	set_flag(gx,gy,gz,gw,F_GOAL);
@@ -1533,10 +1504,10 @@ void m4::breadth_build (void)
 		//printf("%7.3f %3i %3lu\n", f, r, nodes.size());
 		
 		// collect data
-		x = 0XFF & (nodes[r].node>>24);
-		y = 0XFF & (nodes[r].node>>16);
-		z = 0XFF & (nodes[r].node>>8);
-		w = 0XFF & (nodes[r].node);
+		x = 0xFF & (nodes[r].node>>24);
+		y = 0xFF & (nodes[r].node>>16);
+		z = 0xFF & (nodes[r].node>>8);
+		w = 0xFF & (nodes[r].node);
 		char dir = nodes[r].dir;
 		
 		// break wall
@@ -1624,6 +1595,10 @@ void m4::breadth_build (void)
 	return;
 }
 
+////////////////////////////////
+//       hunt and kill        //
+////////////////////////////////
+
 void m4::hunt_and_kill_build (void)
 {
 	// build walls
@@ -1686,11 +1661,6 @@ void m4::hunt_and_kill_build (void)
 	set_flag(gx,gy,gz,gw,F_GOAL);
 	return;
 }
-
-////////////////////////////////
-// END M4.CPP
-////////////////////////////////
-
 
 bool m4::kill (void)
 {
