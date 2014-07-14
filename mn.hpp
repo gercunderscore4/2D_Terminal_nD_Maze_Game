@@ -1,5 +1,5 @@
-#ifndef MN_H_
-#define MN_H_
+#ifndef MN_HPP_
+#define MN_HPP_
 
 #define CLR_LEN 100
 
@@ -15,17 +15,21 @@
 // wall flags
 // D down
 // U up
-#define XD 0x01
-#define YD 0x02
-#define ZD 0x04
-#define WD 0x08
+#define XD 0x00000001
+#define YD 0x00000002
+#define ZD 0x00000004
+#define WD 0x00000008
+#define XU 0x00000010
+#define YU 0x00000020
+#define ZU 0x00000040
+#define WU 0x00000080
 // other flags
-#define F_TEMP 0x10
-#define F_GOAL 0x20
+#define F_TEMP 0x00000100
+#define F_GOAL 0x00000200
 
 // maze maximum size
-#define SIZE_MIN 1
-#define SIZE_MAX 100
+#define LEN_MIN 1
+#define LEN_MAX 100
 
 // controls
 #define RESET ' '
@@ -44,4 +48,15 @@
 #define DIRS3 6
 #define DIRS4 8
 
-#endif // MN_H_
+// dimension swap
+#define DIMX 0
+#define DIMY 1
+#define DIMZ 2
+#define DIMW 3
+// d-swap controls
+#define DSWAPX '0'
+#define DSWAPY '1'
+#define DSWAPZ '2'
+#define DSWAPW '3'
+
+#endif // MN_HPP_
