@@ -2,7 +2,7 @@
  * FILE:    m.cpp
  * PURPOSE: 4D maze game
  * AUTHOR:  Geoffrey Card
- * DATE:    2014-02-06 - 2014-02-10
+ * DATE:    2014-02-06 - 2014-07-13
  * NOTES:   Controls are un-intuitive.
  *          Graphics are too big.
  */
@@ -43,8 +43,7 @@ int main (void)
 	// game
 	m4 maze;
 	//maze.play();
-	maze.play(20, 15, 1, 1);
-	//maze.test(10, 50, 50, 50, 1);
+	maze.play(3,4,2,1);
 	//maze.do_stuff();
 	
 	//printf("\n\nGood-bye, cruel world!\n");
