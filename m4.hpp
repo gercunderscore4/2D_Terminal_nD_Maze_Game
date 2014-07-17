@@ -3,7 +3,7 @@
  * PURPOSE: 4D maze class
  * AUTHOR:  Geoffrey Card
  * DATE:    ????-??-?? - 2014-07-11
- * NOTES:   d-swap cannot handle multiples of a dimension (an == am)
+ * NOTES:   print_all cannot handle multiples of a dimension (an == am)
  */
 
 #ifndef M4_HPP_
@@ -46,6 +46,7 @@ class m4 {
 		void play (void);
 		void play (int xs, int ys, int zs, int ws);
 		void test (int n, int xs, int ys, int zs, int ws);
+		void tutorial (void);
 
 		// allocate and deallocate maze data
 		void gen (void);
@@ -64,6 +65,7 @@ class m4 {
 		
 		// print
 		void print_clr (void);
+		void print_title_screen (void);
 		void print_all (void);
 		void print_man (void);
 		void print_data (void);
@@ -72,7 +74,8 @@ class m4 {
 		void get_size (void);
 		bool control (void);
 		// dimension swap
-		void d_swap (int d1, int d2);
+		void d_swap_abs (int d1, int d2);
+		void d_swap_rel (int d1, int d2);
 
 		// checks
 		bool inline valid (void);
