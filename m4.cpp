@@ -3,7 +3,7 @@
  * PURPOSE: 4D maze class
  * AUTHOR:  Geoffrey Card
  * DATE:    ????-??-?? - 2014-07-11
- * NOTES:   d-swap cannot handle multiples of a dimension (an == am)
+ * NOTES:   print_all cannot handle multiples of a dimension (an == am)
  */
 
 #include <cstdio>
@@ -39,6 +39,8 @@ void m4::do_stuff (void)
 
 void m4::play (void)
 {
+	print_title_screen();
+	
 	while (true) {
 		// clear screen
 		print_clr();
@@ -61,6 +63,7 @@ void m4::play (void)
 		//printf("solving:\n");
 		//printf("depth solve: %i\n", rec_depth_solve());
 		//printf("breadth solve: %i\n", breadth_solve());
+		// pause
 		//getchar();
 		
 		// play
@@ -124,15 +127,16 @@ void m4::test (int n, int xs, int ys, int zs, int ws)
 		temp = (int) time(NULL);
 		// build, choose one
 		//random_build();
-		depth_build();
+		//depth_build();
 		//breadth_build();
+		hunt_and_kill_build();
 		//
 		build_time[i] = (int) time(NULL) - temp;
 		
 		temp = (int) time(NULL);
 		// solve, choose one
-		//rec_depth_solve();
-		breadth_solve();
+		rec_depth_solve();
+		//breadth_solve();
 		//
 		solve_time[i] = (int) time(NULL) - temp;
 		
@@ -187,6 +191,7 @@ void m4::gen (void)
 	if (lenz > LEN_MAX) lenz = LEN_MAX;
 	if (lenw < LEN_MIN) lenw = LEN_MIN;
 	if (lenw > LEN_MAX) lenw = LEN_MAX;
+
 	// allocate
 	arry = (node_t****) calloc(lenx+1,sizeof(node_t***));
 	for (int i = 0; i < lenx+1; i++) {
@@ -219,6 +224,11 @@ void m4::degen (void)
 		leny=0;
 		lenz=0;
 		lenw=0;
+		
+		a0=0;
+		a1=1;
+		a2=2;
+		a3=3;
 	}	
 }
 
@@ -326,6 +336,66 @@ void m4::print_clr (void)
 	}
 }
 
+void m4::print_title_screen (void)
+{
+	// clear screen
+	print_clr();
+	
+	// title screen
+	printf(
+		"2D Terminal nD Maze Game\n"
+		"                        \n"
+		"   By Geoffrey Card     \n"
+		"                        \n"
+		"      press enter       \n"
+		"                        \n"
+	);
+	// press enter
+	char c = 0;
+	do {
+		c = getchar();
+	} while (c != '\n');
+}
+
+void m4::tutorial (void)
+{
+	/*
+	// enter RESET to skip
+	// press enter to continue
+	print_clr();
+	printf("At any time, '%c' then enter to quit this tutorial.\n\nPress enter to continue.\n", RESET);
+	char comm = '\0';
+	while (comm != '\n') {
+		comm = getchar();
+		if (comm == RESET) {
+			return;
+		}
+	}
+	
+	// 1D maze
+	lenx=5,leny=1,lenz=1,lenw=1;
+	a0=0, a1=1, a2=2, a3=3;
+	x=0,y=0,z=0,w=0;
+	gen();
+	box();
+	// goal
+	gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
+	set_flag(gx,gy,gz,gw,F_GOAL);
+	// control
+		char comm = '\0';
+	while (comm != '\n') {
+		comm = getchar();
+		if (comm == RESET) {
+			return;
+		} else if (comm == XM && can_move(XM)) {
+			x--;
+		} else if (comm == XP && can_move(XP)) {
+			x++;
+		}
+	}
+	*/
+}
+
 void m4::print_man (void)
 {
 	char alet[] = {'X', 'Y', 'Z', 'W'};
@@ -365,12 +435,12 @@ void m4::print_man (void)
 		"  USER: %s \n"
 		"  GOAL: %s \n"
 		"  \n",
-		alet[a3],
+		alet[a2],
 		alet[a0], alet[a0], 
 		alet[a1], alet[a1], 
 		alet[a0], alet[a0], 
 		alet[a1], alet[a1], 
-		alet[a2], 
+		alet[a3], 
 		XP, XM, YP, YM, ZP, ZM, WP, WM, 
 		DSWAPX, DSWAPX, DSWAPY, DSWAPZ, DSWAPW, 
 		USER, GOAL);
@@ -400,24 +470,30 @@ void m4::print_all (void)
 		for (aint[a1]=0; aint[a1]<alen[a1]; aint[a1]++) {
 			
 			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
-				// BLOCK 1
+				// SECTION 1
 				// ROW 1
 				// COL 1
 				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					// BLOCK 1
 					printf("%s", WALL);
+					// BLOCK 2
 					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a1] ? WALL : SPACE);
 				}
+				// BLOCK 3
 				printf("%s", WALL);
 				
-				// BLOCK 1
+				// SECTION 1
 				// ROW 1
 				// COL 2
 				if (aint[a2]<alen[a2]-1) {
 					printf("%s", HSKIP);
 					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
 						printf("%s", WALL);
+						// BLOCK 2
 						printf("%s", WALL);
 					}
+					// BLOCK 3
 					printf("%s", WALL);
 					printf("%s", HSKIP);
 				}
@@ -425,11 +501,13 @@ void m4::print_all (void)
 			printf("\n");
 			
 			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
-				// BLOCK 1
+				// SECTION 1
 				// ROW 2
 				// COL 1
 				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					// BLOCK 1
 					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a0] ? WALL : SPACE);
+					// BLOCK 2
 					// USER/GOAL/ETC
 					if (x==aint[0] && y==aint[1] && z==aint[2] && w==aint[3]) {
 						printf("%s", USER);
@@ -440,17 +518,21 @@ void m4::print_all (void)
 					}
 				}
 				aint[a0] = alen[a0]-1;
+				// BLOCK 3
 				printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a0] ? WALL : SPACE);
 				
-				// BLOCK 1
+				// SECTION 1
 				// ROW 2
 				// COL 2
 				if (aint[a2]<alen[a2]-1) {
 					printf("%s", HSKIP);
 					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
 						printf("%s", WALL);
+						// BLOCK 2
 						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a2] ? WALL : SPACE);
 					}
+					// BLOCK 3
 					printf("%s", WALL);
 					printf("%s", HSKIP);
 				}
@@ -460,24 +542,30 @@ void m4::print_all (void)
 		
 		aint[a1] = alen[a1]-1;
 		for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
-			// BLOCK 1
+			// SECTION 1
 			// ROW 3
 			// COL 1
 			for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+				// BLOCK 1
 				printf("%s", WALL);
+				// BLOCK 2
 				printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a1] ? WALL : SPACE);
 			}
+			// BLOCK 3
 			printf("%s", WALL);
 				
-			// BLOCK 1
+			// SECTION 1
 			// ROW 3
 			// COL 2
 			if (aint[a2]<alen[a2]-1) {
 				printf("%s", HSKIP);
 				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					// BLOCK 1
 					printf("%s", WALL);
+					// BLOCK 2
 					printf("%s", WALL);
 				}
+				// BLOCK 3
 				printf("%s", WALL);
 				printf("%s", HSKIP);
 			}
@@ -489,24 +577,30 @@ void m4::print_all (void)
 			
 			for (aint[a1]=0; aint[a1]<alen[a1]; aint[a1]++) {
 				for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
-					// BLOCK 2
+					// SECTION 2
 					// ROW 1
 					// COL 1
 					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
 						printf("%s", WALL);
+						// BLOCK 2
 						printf("%s", WALL);
 					}
+					// BLOCK 3
 					printf("%s", WALL);
 					
-					// BLOCK 2
+					// SECTION 2
 					// ROW 1
 					// COL 2
 					if (aint[a2]<alen[a2]-1) {
 						printf("%s", HSKIP);
 						for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+							// BLOCK 1
 							printf("%s", SPACE);
+							// BLOCK 2
 							printf("%s", SPACE);
 						}
+						// BLOCK 3
 						printf("%s", SPACE);
 						printf("%s", HSKIP);
 					}
@@ -514,24 +608,30 @@ void m4::print_all (void)
 				printf("\n");
 				
 				for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
-					// BLOCK 2
+					// SECTION 2
 					// ROW 2
 					// COL 1
 					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
 						printf("%s", WALL);
+						// BLOCK 2
 						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a3] ? WALL : SPACE);
 					}
+					// BLOCK 3
 					printf("%s", WALL);
 					
-					// BLOCK 2
+					// SECTION 2
 					// ROW 2
 					// COL 2
 					if (aint[a2]<alen[a2]-1) {
 						printf("%s", HSKIP);
 						for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+							// BLOCK 1
 							printf("%s", SPACE);
+							// BLOCK 2
 							printf("%s", SPACE);
 						}
+						// BLOCK 3
 						printf("%s", SPACE);
 						printf("%s", HSKIP);
 					}
@@ -539,24 +639,30 @@ void m4::print_all (void)
 				printf("\n");
 			}
 			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
-				// BLOCK 2
+				// SECTION 2
 				// ROW 3
 				// COL 1
 				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					// BLOCK 1
 					printf("%s", WALL);
+					// BLOCK 2
 					printf("%s", WALL);
 				}
+				// BLOCK 3
 				printf("%s", WALL);
 				
-				// BLOCK 2
+				// SECTION 2
 				// ROW 3
 				// COL 2
 				if (aint[a2]<alen[a2]-1) {
 					printf("%s", HSKIP);
 					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
 						printf("%s", SPACE);
+						// BLOCK 2
 						printf("%s", SPACE);
 					}
+					// BLOCK 3
 					printf("%s", SPACE);
 					printf("%s", HSKIP);
 				}
@@ -650,13 +756,13 @@ bool m4::control (void)
 		} else if (comm == WP && can_move(comm)) {
 			w++;
 		} else if (comm == DSWAPX) {
-			d_swap(DIMX, DIMX);
+			d_swap_rel(DIMX, DIMX);
 		} else if (comm == DSWAPY) {
-			d_swap(DIMX, DIMY);
+			d_swap_rel(DIMX, DIMY);
 		} else if (comm == DSWAPZ) {
-			d_swap(DIMX, DIMZ);
+			d_swap_rel(DIMX, DIMZ);
 		} else if (comm == DSWAPW) {
-			d_swap(DIMX, DIMW);
+			d_swap_rel(DIMX, DIMW);
 		}
 		
 		if (has_flag(F_GOAL)) {
@@ -677,7 +783,7 @@ bool m4::control (void)
 	return false;
 }
 
-void m4::d_swap (int d1, int d2)
+void m4::d_swap_abs (int d1, int d2)
 {
 	if (d1 == DIMX) {
 		if (d2 == DIMY) {
@@ -734,6 +840,67 @@ void m4::d_swap (int d1, int d2)
 			int temp = a3;
 			a3 = a2;
 			a2 = temp;
+		}
+	}
+}
+
+void m4::d_swap_rel (int d1, int d2)
+{
+	if (d1 == a0) {
+		if (d2 == a0) {
+			a0 = d2;
+			a0 = d1;
+		} else if (d2 == a1) {
+			a0 = d2;
+			a1 = d1;
+		} else if (d2 == a2) {
+			a0 = d2;
+			a2 = d1;
+		} else if (d2 == a3) {
+			a0 = d2;
+			a3 = d1;
+		}
+	} else if (d1 == a1) {
+		if (d2 == a0) {
+			a1 = d2;
+			a0 = d1;
+		} else if (d2 == a1) {
+			a1 = d2;
+			a1 = d1;
+		} else if (d2 == a2) {
+			a1 = d2;
+			a2 = d1;
+		} else if (d2 == a3) {
+			a1 = d2;
+			a3 = d1;
+		}
+	} else if (d1 == a2) {
+		if (d2 == a0) {
+			a2 = d2;
+			a0 = d1;
+		} else if (d2 == a1) {
+			a2 = d2;
+			a1 = d1;
+		} else if (d2 == a2) {
+			a2 = d2;
+			a2 = d1;
+		} else if (d2 == a3) {
+			a2 = d2;
+			a3 = d1;
+		}
+	} else if (d1 == a3) {
+		if (d1 == a0) {
+			a3 = d2;
+			a0 = d1;
+		} else if (d2 == a1) {
+			a3 = d2;
+			a1 = d1;
+		} else if (d2 == a2) {
+			a3 = d2;
+			a2 = d1;
+		} else if (d2 == a3) {
+			a3 = d2;
+			a3 = d1;
 		}
 	}
 }
@@ -1617,7 +1784,6 @@ void m4::hunt_and_kill_build (void)
 	
 	// hunt
 	bool done = false;
-	int xc=0,yc=0,zc=0,wc=0;
 	while (!done) {
 		for (x = 0; x < lenx; x++) {
 			for (y = 0; y < leny; y++) {
