@@ -1,24 +1,39 @@
 INFO
-N-Dimensional Maze Game
+2D nD Maze Game
 Author: Geoffrey Card
-Last updated: 2014-02-23 | 16:16
+Last updated: 2014-07-14 | 18:38
 
-Generates a Euclidean, spatial, 4D maze (for lower dimensions, input 1 for size of all un-used dimensions).
+Generates Euclidean, spatial, 4D mazes.
+For lower-dimensional mazes, enter length of 1 on higher dimensions.
+Includes right angle rotation (dimension swapping/d-swap).
+Coded mostly from my Android phone using C4droid.
 
 FEATURES:
 - Maze building algorithms:
   - depth-first
-  - breadth-first
+  - breadth-first (Prim)
   - hunt & kill
 - Maze sovling algorithms:
   - depth-first
   - breadth-first
+- Dimesion swapping (rotation)
 
 TO DO:
+- Maze building algorithms:
+  - Eller
+- Tutorials:
+  - entering commands (press enter)
+  - movement
+  - dimension swapping
+- Multiple print styles:
+  - "line-of-sight"
+  - "discovery"
+- Question use of classes
+
+FOR FULL VERSION:
 - Windowed
 - Real-time controls
 - 3D graphics*
-- Eller's algorithm
-- Question use of classes
-- delete m0, m1, m2, m3
-* Already implemented elsewhere
+
+* Already implemented elsewhere**.
+** And if you believe that, I have a proof for a^n + b^n != c^n for natural a,b,c and n > 2 that's too big to fit here.
