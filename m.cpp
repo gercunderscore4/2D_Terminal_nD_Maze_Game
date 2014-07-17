@@ -15,37 +15,15 @@
 
 int main (void)
 {
-	//printf("Hello, brave new world!\n\n");
-	//srand((int) time(NULL));
-	
-	/*
-	// clear screen
-	for (int i = 0; i < CLR_LEN; i++) {
-		printf("\n");
-	}
-	
-	// title screen
-	printf(
-		"2D Terminal nD Maze Game\n"
-		"                        \n"
-		"   By Geoffrey Card     \n"
-		"                        \n"
-		"      press enter       \n"
-		"                        \n"
-	);
-	// press enter
-	char c = 0;
-	do {
-		c = getchar();
-	} while (c != '\n');
-	*/
+	//printf("Hello, brave new world!\n");
 	
 	// game
 	m4 maze;
-	//maze.play();
-	maze.play(3,4,2,1);
+	maze.play();
+	//maze.play(3,4,2,1);
 	//maze.do_stuff();
+	//maze.test(10, 64,64,64,64); // should take 15 minutes on Moto X
 	
-	//printf("\n\nGood-bye, cruel world!\n");
+	//printf("\nGood-bye, cruel world!\n");
 	return 0;
 }
