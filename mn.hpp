@@ -11,6 +11,7 @@
 #define TEMP  "::"
 #define HSKIP "  "
 #define VSKIP "\n"
+#define UNDIS ".."
 
 // wall flags
 // D down
@@ -26,6 +27,7 @@
 // other flags
 #define F_TEMP 0x00000100
 #define F_GOAL 0x00000200
+#define F_DISC 0x00000400 // block discovered
 
 // maze maximum size
 #define LEN_MIN 1
