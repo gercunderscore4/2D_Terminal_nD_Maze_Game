@@ -2,7 +2,7 @@
 
 SHELL = /bin/sh
 CC = g++
-CPPFLAGS = -g -Wall
+CPPFLAGS = -g -Wall -std=c++11
 #CFLAGS = -I$(srcdir)
 #LDFLAGS = -L$(srcdir)
 #LDLIBS = 
@@ -10,7 +10,7 @@ CPPFLAGS = -g -Wall
 .SUFFIXES:
 .SUFFIXES: .cpp .hpp .o
 
-SOURCES = m.cpp m1.cpp m2.cpp m3.cpp m4.cpp
+SOURCES = m.cpp m4.cpp
 EXEC = m
 
 .PHONY: all
