@@ -1,7 +1,7 @@
 INFO
 2D nD Maze Game
 Author: Geoffrey Card
-Last updated: 2014-07-14 | 18:38
+Last updated: 2014-07-20 | 01:33
 
 Generates Euclidean, spatial, 4D mazes.
 For lower-dimensional mazes, enter length of 1 on higher dimensions.
@@ -10,6 +10,8 @@ Coded mostly from my Android phone using C4droid.
 
 FEATURES:
 - Maze building algorithms:
+  - random
+  - random solved
   - depth-first
   - breadth-first (Prim)
   - hunt & kill
@@ -27,13 +29,14 @@ TO DO:
   - dimension swapping
 - Multiple print styles:
   - "line-of-sight"
+  - "ranged"
   - "discovery"
-- Question use of classes
 
 FOR FULL VERSION:
 - Windowed
 - Real-time controls
 - 3D graphics*
+- 3D intersection with convex hull algorithm*
 
 * Already implemented elsewhere**.
 ** And if you believe that, I have a proof for a^n + b^n != c^n for natural a,b,c and n > 2 that's too big to fit here.
