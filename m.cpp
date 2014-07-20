@@ -20,7 +20,7 @@ int main (void)
 	// game
 	m4 maze;
 	maze.play();
-	//maze.play(3,4,2,1, 4);
+	//maze.play(3,4,2,1, 4, 1);
 	//maze.do_stuff();
 	//maze.test(10, 64,64,64,64); // should take 15 minutes on Moto X
 	
