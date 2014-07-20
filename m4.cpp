@@ -2,7 +2,7 @@
  * FILE:    m4.cpp
  * PURPOSE: 4D maze class
  * AUTHOR:  Geoffrey Card
- * DATE:    ????-??-?? - 2014-07-11
+ * DATE:    ????-??-?? - 2014-07-19
  * NOTES:   print_all cannot handle multiples of a dimension (an == am)
  */
 
@@ -18,6 +18,13 @@ using namespace std;
 #include "mn.hpp"
 #include "m4.hpp"
 
+////////////////////////////////////////////////////////////////
+////////////////             META               ////////////////
+////////////////////////////////////////////////////////////////
+
+/*
+ * For basic functionality testing, modify at will.
+ */
 void m4::do_stuff (void)
 {
 	lenx=5,leny=5,lenz=1,lenw=1;
@@ -37,6 +44,9 @@ void m4::do_stuff (void)
 	degen();
 }
 
+/*
+ * Play, manual size selection.
+ */
 void m4::play (void)
 {
 	print_title_screen();
@@ -51,14 +61,9 @@ void m4::play (void)
 		// allocate
 		gen();
 		
-		// build, choose one
-		//box();
-		//cage();
-		//random_build();
-		//depth_build();
-		//breadth_build();
-		hunt_and_kill_build();
-		
+		// build
+		build_maze(alg);
+
 		// solve
 		//printf("solving:\n");
 		//printf("depth solve: %i\n", rec_depth_solve());
@@ -74,7 +79,10 @@ void m4::play (void)
 	}
 }
 
-void m4::play (int xs, int ys, int zs, int ws)
+/*
+ * Play, automatic size selection.
+ */
+void m4::play (int xs, int ys, int zs, int ws, int algs)
 {
 	while (true) {
 		// clear screen
@@ -86,13 +94,8 @@ void m4::play (int xs, int ys, int zs, int ws)
 		// allocate
 		gen();
 		
-		// build, choose one
-		//box();
-		//cage();
-		//random_build();
-		//depth_build();
-		//breadth_build();
-		hunt_and_kill_build();
+		// build
+		build_maze(algs);
 		
 		// solve
 		//printf("solving:\n");
@@ -108,6 +111,9 @@ void m4::play (int xs, int ys, int zs, int ws)
 	}
 }
 
+/*
+ * Testing for benchmarking.
+ */
 void m4::test (int n, int xs, int ys, int zs, int ws)
 {
 	int temp; // will literally be related to time
@@ -153,10 +159,13 @@ void m4::test (int n, int xs, int ys, int zs, int ws)
 	delete[] solve_time;
 }
 
-////////////////////////////////
-//       constructicons       //
-////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////            CLASS               ////////////////
+////////////////////////////////////////////////////////////////
 
+/*
+ * Class constructor.
+ */
 m4::m4 (void)
 {
 	// all blank
@@ -175,10 +184,13 @@ m4::~m4 (void)
 	degen();
 }
 
-////////////////////////////////
-//        allocation          //
-////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////          ALLOCATION            ////////////////
+////////////////////////////////////////////////////////////////
 
+/*
+ * Class constructor.
+ */
 void m4::gen (void)
 {
 	degen();
@@ -205,6 +217,9 @@ void m4::gen (void)
 	}
 }
 
+/*
+ * Class destructor.
+ */
 void m4::degen (void)
 {
 	if (arry != NULL) {
@@ -232,10 +247,18 @@ void m4::degen (void)
 	}	
 }
 
-////////////////////////////////
-//           boxes            //
-////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////             BOXES              ////////////////
+////////////////////////////////////////////////////////////////
 
+/*
++---------+
+|?????????|
+|?????????|
+|?????????|
+|?????????|
++---------+
+*/
 void m4::frame (void)
 {
 	// make outer walls
@@ -291,12 +314,28 @@ void m4::frame (void)
 	}
 }
 
+/*
++---------+
+|         |
+|         |
+|         |
+|         |
++---------+
+*/
 void m4::box (void)
 {
 	empty();
 	frame();
 }
 
+/*
++++++++++++
++++++++++++
++++++++++++
++++++++++++
++++++++++++
++++++++++++
+*/
 void m4::cage (void)
 {
 	// build walls
@@ -311,6 +350,14 @@ void m4::cage (void)
 	}
 }
 
+/*
+...........
+...........
+...........
+...........
+...........
+...........
+*/
 void m4::empty (void)
 {
 	// make outer walls
@@ -325,10 +372,13 @@ void m4::empty (void)
 	}
 }
 
-////////////////////////////////
-//          print             //
-////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////           GRAPHICS             ////////////////
+////////////////////////////////////////////////////////////////
 
+/*
+ * Clear screen.
+ */
 void m4::print_clr (void)
 {
 	for (int i = 0; i < CLR_LEN; i++) {
@@ -336,6 +386,9 @@ void m4::print_clr (void)
 	}
 }
 
+/*
+ * Title screen.
+ */
 void m4::print_title_screen (void)
 {
 	// clear screen
@@ -357,45 +410,9 @@ void m4::print_title_screen (void)
 	} while (c != '\n');
 }
 
-void m4::tutorial (void)
-{
-	/*
-	// enter RESET to skip
-	// press enter to continue
-	print_clr();
-	printf("At any time, '%c' then enter to quit this tutorial.\n\nPress enter to continue.\n", RESET);
-	char comm = '\0';
-	while (comm != '\n') {
-		comm = getchar();
-		if (comm == RESET) {
-			return;
-		}
-	}
-	
-	// 1D maze
-	lenx=5,leny=1,lenz=1,lenw=1;
-	a0=0, a1=1, a2=2, a3=3;
-	x=0,y=0,z=0,w=0;
-	gen();
-	box();
-	// goal
-	gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
-	set_flag(gx,gy,gz,gw,F_GOAL);
-	// control
-		char comm = '\0';
-	while (comm != '\n') {
-		comm = getchar();
-		if (comm == RESET) {
-			return;
-		} else if (comm == XM && can_move(XM)) {
-			x--;
-		} else if (comm == XP && can_move(XP)) {
-			x++;
-		}
-	}
-	*/
-}
-
+/*
+ * Print manual.
+ */
 void m4::print_man (void)
 {
 	char alet[] = {'X', 'Y', 'Z', 'W'};
@@ -424,7 +441,7 @@ void m4::print_man (void)
 		"  Z-   %c \n"
 		"  W+   %c \n"
 		"  W-   %c \n"
-		"  new  ` \n"
+		"  new  %c \n"
 		"  d-swap: (all swap with %c) \n"
 		"  X    %c \n"
 		"  Y    %c \n"
@@ -441,7 +458,7 @@ void m4::print_man (void)
 		alet[a0], alet[a0], 
 		alet[a1], alet[a1], 
 		alet[a3], 
-		XP, XM, YP, YM, ZP, ZM, WP, WM, 
+		XP, XM, YP, YM, ZP, ZM, WP, WM, RESET, 
 		DSWAPX, DSWAPX, DSWAPY, DSWAPZ, DSWAPW, 
 		USER, GOAL);
 }
@@ -673,6 +690,255 @@ void m4::print_all (void)
 	}
 }
 
+/*
+    ..............  ::::::::::::::  ..............  
+    ..............  ::WU::WU::WU::  ..............  
+    ..............  ::::::::::::::  ..............  
+    ..............  ::WU::WU::WU::  ..............  
+    ..............  ::::::::::::::  ..............  
+    ..............  ::WU::WU::WU::  ..............  
+    ..............  ::::::::::::::  ..............  
+                    
+    ::::::::::::::  ::YD::YD::YD::  ::::::::::::::  
+    ::ZU::ZU::ZU::  XD  XD  XD  XU  ::ZU::ZU::ZU::  
+    ::::::::::::::  ::YD::YD::YD::  ::::::::::::::  
+    ::ZU::ZU::ZU::  XD  XD  XD  XU  ::ZU::ZU::ZU::  
+    ::::::::::::::  ::YD::YD::YD::  ::::::::::::::  
+    ::ZU::ZU::ZU::  XD  XD  XD  XU  ::ZU::ZU::ZU::  
+    ::::::::::::::  ::YU::YU::YU::  ::::::::::::::  
+                    
+    ..............  ::::::::::::::  ..............  
+    ..............  ::WU::WU::WU::  ..............  
+    ..............  ::::::::::::::  ..............  
+    ..............  ::WU::WU::WU::  ..............  
+    ..............  ::::::::::::::  ..............  
+    ..............  ::WU::WU::WU::  ..............  
+    ..............  ::::::::::::::  ..............  
+                    
+*/
+/*
+ * Not implemented. Prints discovered areas only.
+ */
+void m4::print_disc (void)
+{
+	// debug
+	//printf("address %0X\nlenx %i\nleny %i\nlenz %i\nlenw %i\n", arry, lenx, leny, lenz, lenw);
+	//printf("a1 = %i, a2 = %i, a3 = %i, a4 = %i\n", a1, a2,a3, a4);
+	int aint[] = {0, 0, 0, 0};
+	const int alen[] = {lenx, leny, lenz, lenw};
+	const node_t awd[] = {XD, YD, ZD, WD};
+	const node_t awu[] = {XU, YU, ZU, WU};
+	
+	for (aint[a3]=0; aint[a3]<alen[a3]; aint[a3]++) {
+		for (aint[a1]=0; aint[a1]<alen[a1]; aint[a1]++) {
+			
+			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+				// SECTION 1
+				// ROW 1
+				// COL 1
+				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					// BLOCK 1
+					printf("%s", WALL);
+					// BLOCK 2
+					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a1] ? WALL : SPACE);
+				}
+				// BLOCK 3
+				printf("%s", WALL);
+				
+				// SECTION 1
+				// ROW 1
+				// COL 2
+				if (aint[a2]<alen[a2]-1) {
+					printf("%s", HSKIP);
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
+						printf("%s", WALL);
+						// BLOCK 2
+						printf("%s", WALL);
+					}
+					// BLOCK 3
+					printf("%s", WALL);
+					printf("%s", HSKIP);
+				}
+			}
+			printf("\n");
+			
+			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+				// SECTION 1
+				// ROW 2
+				// COL 1
+				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					// BLOCK 1
+					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a0] ? WALL : SPACE);
+					// BLOCK 2
+					// USER/GOAL/ETC
+					if (x==aint[0] && y==aint[1] && z==aint[2] && w==aint[3]) {
+						printf("%s", USER);
+					} else if (has_flag(aint[0],aint[1],aint[2],aint[3],F_GOAL)) {
+						printf("%s", GOAL);
+					} else {
+						printf("%s", SPACE);
+					}
+				}
+				aint[a0] = alen[a0]-1;
+				// BLOCK 3
+				printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a0] ? WALL : SPACE);
+				
+				// SECTION 1
+				// ROW 2
+				// COL 2
+				if (aint[a2]<alen[a2]-1) {
+					printf("%s", HSKIP);
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
+						printf("%s", WALL);
+						// BLOCK 2
+						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a2] ? WALL : SPACE);
+					}
+					// BLOCK 3
+					printf("%s", WALL);
+					printf("%s", HSKIP);
+				}
+			}
+			printf("\n");
+		}
+		
+		aint[a1] = alen[a1]-1;
+		for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+			// SECTION 1
+			// ROW 3
+			// COL 1
+			for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+				// BLOCK 1
+				printf("%s", WALL);
+				// BLOCK 2
+				printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a1] ? WALL : SPACE);
+			}
+			// BLOCK 3
+			printf("%s", WALL);
+				
+			// SECTION 1
+			// ROW 3
+			// COL 2
+			if (aint[a2]<alen[a2]-1) {
+				printf("%s", HSKIP);
+				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					// BLOCK 1
+					printf("%s", WALL);
+					// BLOCK 2
+					printf("%s", WALL);
+				}
+				// BLOCK 3
+				printf("%s", WALL);
+				printf("%s", HSKIP);
+			}
+		}
+		printf("\n");
+		
+		if (aint[a3]<alen[a3]-1) {
+			printf("%s", VSKIP);
+			
+			for (aint[a1]=0; aint[a1]<alen[a1]; aint[a1]++) {
+				for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+					// SECTION 2
+					// ROW 1
+					// COL 1
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
+						printf("%s", WALL);
+						// BLOCK 2
+						printf("%s", WALL);
+					}
+					// BLOCK 3
+					printf("%s", WALL);
+					
+					// SECTION 2
+					// ROW 1
+					// COL 2
+					if (aint[a2]<alen[a2]-1) {
+						printf("%s", HSKIP);
+						for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+							// BLOCK 1
+							printf("%s", SPACE);
+							// BLOCK 2
+							printf("%s", SPACE);
+						}
+						// BLOCK 3
+						printf("%s", SPACE);
+						printf("%s", HSKIP);
+					}
+				}
+				printf("\n");
+				
+				for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+					// SECTION 2
+					// ROW 2
+					// COL 1
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
+						printf("%s", WALL);
+						// BLOCK 2
+						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a3] ? WALL : SPACE);
+					}
+					// BLOCK 3
+					printf("%s", WALL);
+					
+					// SECTION 2
+					// ROW 2
+					// COL 2
+					if (aint[a2]<alen[a2]-1) {
+						printf("%s", HSKIP);
+						for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+							// BLOCK 1
+							printf("%s", SPACE);
+							// BLOCK 2
+							printf("%s", SPACE);
+						}
+						// BLOCK 3
+						printf("%s", SPACE);
+						printf("%s", HSKIP);
+					}
+				}
+				printf("\n");
+			}
+			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
+				// SECTION 2
+				// ROW 3
+				// COL 1
+				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+					// BLOCK 1
+					printf("%s", WALL);
+					// BLOCK 2
+					printf("%s", WALL);
+				}
+				// BLOCK 3
+				printf("%s", WALL);
+				
+				// SECTION 2
+				// ROW 3
+				// COL 2
+				if (aint[a2]<alen[a2]-1) {
+					printf("%s", HSKIP);
+					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
+						// BLOCK 1
+						printf("%s", SPACE);
+						// BLOCK 2
+						printf("%s", SPACE);
+					}
+					// BLOCK 3
+					printf("%s", SPACE);
+					printf("%s", HSKIP);
+				}
+			}
+			printf("\n");
+			printf("%s", VSKIP);
+		}
+	}
+}
+
+/*
+ * Print hex for debug.
+ */
 void m4::print_data (void)
 {
 	for (int h=0; h<lenw; h++) {
@@ -691,10 +957,179 @@ void m4::print_data (void)
 	}
 }
 
-////////////////////////////////
-//         control            //
-////////////////////////////////
 
+/*
+ * Discovers line of sight.
+ * For line of sight only, clear disc flags before this in control loop.
+ */
+void m4::disc_line_of_sight (void)
+{
+	// current position
+	set_flag(F_DISC);
+	
+	int i=x, j=y, k=z, h=w;
+	
+	// X-
+	while (can_move(i,j,k,h,XM)) {
+		i--;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	i=x;
+	
+	// X+
+	while (can_move(i,j,k,h,XP)) {
+		i++;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	i=x;
+	
+	// Y-
+	while (can_move(i,j,k,h,YM)) {
+		j--;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	j=y;
+	
+	// Y+
+	while (can_move(i,j,k,h,YP)) {
+		j++;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	j=y;
+	
+	// Z-
+	while (can_move(i,j,k,h,ZM)) {
+		k--;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	k=z;
+	
+	// Z+
+	while (can_move(i,j,k,h,ZP)) {
+		k++;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	k=z;
+	
+	// W-
+	while (can_move(i,j,k,h,WM)) {
+		h--;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	h=w;
+	
+	// W+
+	while (can_move(i,j,k,h,WP)) {
+		h++;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	h=w;
+}
+
+/*
+ * Discovers ranged line of sight.
+ * For line of sight only, clear disc flags before this in control loop.
+ */
+void m4::disc_line_of_sight_ranged (int range)
+{
+	if (range >= 0) {
+		// current position
+		set_flag(F_DISC);
+	}
+	
+	int i=x, j=y, k=z, h=w;
+	
+	// X-
+	for (int ii=0; ii<range && !can_move(i,j,k,h,XM); ii++) {
+		i--;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	i=x;
+	
+	// X+
+	for (int ii=0; ii<range && !can_move(i,j,k,h,XP); ii++) {
+		i++;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	i=x;
+	
+	// Y-
+	for (int ii=0; ii<range && !can_move(i,j,k,h,YM); ii++) {
+		j--;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	j=y;
+	
+	// Y+
+	for (int ii=0; ii<range && !can_move(i,j,k,h,YP); ii++) {
+		j++;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	j=y;
+	
+	// Z-
+	for (int ii=0; ii<range && !can_move(i,j,k,h,ZM); ii++) {
+		k--;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	k=z;
+	
+	// Z+
+	for (int ii=0; ii<range && !can_move(i,j,k,h,ZP); ii++) {
+		k++;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	k=z;
+	
+	// W-
+	for (int ii=0; ii<range && !can_move(i,j,k,h,WM); ii++) {
+		h--;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	h=w;
+	
+	// W+
+	for (int ii=0; ii<range && !can_move(i,j,k,h,WP); ii++) {
+		h++;
+		set_flag(i,j,k,h,F_DISC);
+	}
+	h=w;
+}
+
+/*
+ * Discovers ranged sight.
+ * For near sight only, clear disc flags before this in control loop.
+ * Untested, may seg-fault (off-by-one in range).
+ */
+void m4::disc_ranged (int range)
+{
+	int i_min = i-range > 0 ? i-range : 0;
+	int i_max = i+range < lenx ? i+range : lenx;
+	int j_min = j-range > 0 ? j-range : 0;
+	int j_max = j+range < leny ? j+range : leny;
+	int k_min = k-range > 0 ? k-range : 0;
+	int k_max = k+range < lenz ? k+range : lenz;
+	int h_min = h-range > 0 ? h-range : 0;
+	int h_max = h+range < lenw ? h+range : lenw;
+	
+	for (int i=i_min; i<i_max; i++) {
+		for (int j=j_min; j<j_max; j++) {
+			for (int k=k_min; k<k_max; k++) {
+				for (int h=h_min; h<h_max; h++) {
+					set_flag(i,j,k,h,F_DISC);
+				}
+			}
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////
+////////////////            CONTROLS            ////////////////
+////////////////////////////////////////////////////////////////
+
+/*
+ * Get dimensions and size.
+ */
 void m4::get_size (void)
 {
 	// get n
@@ -722,8 +1157,51 @@ void m4::get_size (void)
 			}
 		}
 	}
+	
+	printf(
+		"Maze algorithm:\n"
+		"0 = Random\n"
+		"1 = Random solvable\n"
+		"2 = Depth-first\n"
+		"3 = Breadth-first (Prim)\n"
+		"4 = Hunt-and-kill\n"
+		);
+	scanf("%i", &alg);
 }
 
+/*
+ * Build maze, selecting algorithm.
+ */
+void m4::build_maze(int algs)
+{
+	// build, choose one
+	switch (algs) {
+		case ALG_RAND:
+			random_build();
+			break;
+		case ALG_RAND_S:
+			random_solved_build();
+			break;
+		case ALG_DEPTH:
+			depth_build();
+			break;
+		case ALG_BREAD:
+			breadth_build();
+			break;
+		case ALG_HUNT:
+			hunt_and_kill_build();
+			break;
+		default:		
+			box();
+			gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
+			set_flag(gx,gy,gz,gw,F_GOAL);
+			break;
+	}
+}
+
+/*
+ * Main control loop.
+ */
 bool m4::control (void)
 {
 	x=0,y=0,z=0,w=0;
@@ -756,13 +1234,13 @@ bool m4::control (void)
 		} else if (comm == WP && can_move(comm)) {
 			w++;
 		} else if (comm == DSWAPX) {
-			d_swap_rel(DIMX, DIMX);
+			d_swap_abs(DIMX, DIMX);
 		} else if (comm == DSWAPY) {
-			d_swap_rel(DIMX, DIMY);
+			d_swap_abs(DIMX, DIMY);
 		} else if (comm == DSWAPZ) {
-			d_swap_rel(DIMX, DIMZ);
+			d_swap_abs(DIMX, DIMZ);
 		} else if (comm == DSWAPW) {
-			d_swap_rel(DIMX, DIMW);
+			d_swap_abs(DIMX, DIMW);
 		}
 		
 		if (has_flag(F_GOAL)) {
@@ -783,6 +1261,9 @@ bool m4::control (void)
 	return false;
 }
 
+/*
+ * Dimension swap, swap through the axis that is originally X.
+ */
 void m4::d_swap_abs (int d1, int d2)
 {
 	if (d1 == DIMX) {
@@ -844,6 +1325,9 @@ void m4::d_swap_abs (int d1, int d2)
 	}
 }
 
+/*
+ * Dimension swap, swap through the axis called X.
+ */
 void m4::d_swap_rel (int d1, int d2)
 {
 	if (d1 == a0) {
@@ -905,63 +1389,108 @@ void m4::d_swap_rel (int d1, int d2)
 	}
 }
 
-////////////////////////////////
-//          checks            //
-////////////////////////////////
+////////////////////////////////////////////////////////////////
+////////////////            CHECKS              ////////////////
+////////////////////////////////////////////////////////////////
 
+/*
+ * Is position valid?
+ */
 bool inline m4::valid (void)
 {
 	return 0 <= x && x < lenx && 0 <= y && y < leny && 0 <= z && z < lenz && 0 <= w && w < lenw ? true : false; 
 }
 
+/*
+ * Is position valid?
+ */
 bool inline m4::valid (int i, int j, int k, int h)
 {
 	return 0 <= i && i < lenx && 0 <= j && j < leny && 0 <= k && k < lenz && 0 <= h && h < lenw ? true : false; 
 }
 
+/*
+ * Set flag at position.
+ */
 void inline m4::set_flag (node_t flag)
 {
 	if (valid(x,y,z,w)) arry[x][y][z][w] |= flag;
 }
 
+/*
+ * Set flag at position.
+ */
 void inline m4::set_flag (int i, int j, int k, int h, node_t flag)
 {
 	if (valid(i,j,k,h)) arry[i][j][k][h] |= flag;
 }
 
+/*
+ * Set flag in all maze.
+ */
+void inline m4::set_flag_all (node_t flag)
+{
+	for (int i = 0; i < lenx; i++) {
+		for (int j = 0; j < leny; j++) {
+			for (int k = 0; k < lenz; k++) {
+				for (int h = 0; h < lenw; h++) {
+					arry[i][j][k][h] |= flag;
+				}
+			}
+		}
+	}
+}
+/*
+ * Clear flag from position.
+ */
 void inline m4::clear_flag (node_t flag)
 {
 	if (valid(x,y,z,w)) arry[x][y][z][w] &= ~flag;
 }
 
+/*
+ * Clear flag from position.
+ */
 void inline m4::clear_flag (int i, int j, int k, int h, node_t flag)
 {
 	if (valid(i,j,k,h)) arry[i][j][k][h] &= ~flag;
 }
 
+/*
+ * Clear flag from all maze.
+ */
 void inline m4::clear_flag_all (node_t flag)
 {
 	for (int i = 0; i < lenx; i++) {
 		for (int j = 0; j < leny; j++) {
 			for (int k = 0; k < lenz; k++) {
 				for (int h = 0; h < lenw; h++) {
-					clear_flag(i,j,k,h,flag);
+					arry[i][j][k][h] &= ~flag;
 				}
 			}
 		}
 	}
 }
 
+/*
+ * Is this flag up at position?
+ */
 bool inline m4::has_flag (node_t flag)
 {
 	return valid(x,y,z,w) && arry[x][y][z][w]&flag ? true : false;
 }
 
+/*
+ * Is this flag up at position?
+ */
 bool inline m4::has_flag (int i, int j, int k, int h, node_t flag)
 {
 	return valid(i,j,k,h) && arry[i][j][k][h]&flag ? true : false;
 }
 
+/*
+ * Can move from position in direction?
+ */
 bool inline m4::can_move(char dir)
 {
 	switch(dir) {
@@ -986,6 +1515,9 @@ bool inline m4::can_move(char dir)
 	}
 }
 
+/*
+ * Can move from position in direction?
+ */
 bool inline m4::can_move(int i, int j, int k, int h, char dir)
 {
 	switch(dir) {
@@ -1010,6 +1542,9 @@ bool inline m4::can_move(int i, int j, int k, int h, char dir)
 	}
 }
 
+/*
+ * HULK SMASH WALL FROM POSITION IN DIRECTION?!
+ */
 bool m4::smash(char dir) {
 	switch(dir) {
 		case XM:
@@ -1105,6 +1640,9 @@ bool m4::smash(char dir) {
 	}
 }
 
+/*
+ * HULK SMASH WALL FROM POSITION IN DIRECTION?!
+ */
 bool m4::smash(int i, int j, int k, int h, char dir) {
 	switch(dir) {
 		case XM:
@@ -1176,11 +1714,27 @@ bool m4::smash(int i, int j, int k, int h, char dir) {
 	}
 }
 
+////////////////////////////////////////////////////////////////
+////////////////            SOLVERS             ////////////////
+////////////////////////////////////////////////////////////////
+
 ////////////////////////////////
-//         solvers            //
+//       breadth solve        //
 ////////////////////////////////
 
 // set to valid position before and after
+int m4::depth_solve (void)
+{
+	int xs=x, ys=y, zs=z, ws=w;
+	x=0, y=0, z=0, w=0;
+	
+	int ans = rec_depth_solve();
+	
+	x=xs, y=ys, z=zs, w=ws;
+	
+	return ans;
+}
+
 int m4::rec_depth_solve (void)
 {
 	// assume current position is valid
@@ -1319,6 +1873,10 @@ int m4::rec_depth_solve (void)
 	return -1;
 }
 
+////////////////////////////////
+//       breadth solve        //
+////////////////////////////////
+
 int m4::breadth_solve (void)
 {
 	// save position
@@ -1399,14 +1957,47 @@ int m4::breadth_solve (void)
 	return -1;
 }
 
+////////////////////////////////////////////////////////////////
+////////////////           BUILDERS             ////////////////
+////////////////////////////////////////////////////////////////
+
 ////////////////////////////////
-//     maze algorithms        //
+//      random unsolved       //
 ////////////////////////////////
 
 void m4::random_build (void)
 {
-	//int c = -1;
-	//while (c < 0) {
+	// completely random
+	cage();
+	for (int i = 0; i < lenx; i++) {
+		for (int j = 0; j < leny; j++) {
+			for (int k = 0; k < lenz; k++) {
+				for (int h = 0; h < lenw; h++) {
+					if (rand() > RAND_MAX/2) smash(i,j,k,h,XM);
+					if (rand() > RAND_MAX/2) smash(i,j,k,h,YM);
+					if (rand() > RAND_MAX/2) smash(i,j,k,h,ZM);
+					if (rand() > RAND_MAX/2) smash(i,j,k,h,WM);
+				}
+			}
+		}
+	}
+	frame();
+
+	// start
+	x=0,y=0,z=0,w=0;
+	// goal
+	gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
+	set_flag(gx,gy,gz,gw,F_GOAL);
+}
+
+////////////////////////////////
+//       random solved        //
+////////////////////////////////
+
+void m4::random_solved_build (void)
+{
+	int c = -1;
+	while (c < 0) {
 		// completely random
 		cage();
 		for (int i = 0; i < lenx; i++) {
@@ -1423,9 +2014,9 @@ void m4::random_build (void)
 		}
 		frame();
 
-		//c = breadth_solve();
+		c = breadth_solve();
 		//c = rec_depth_solve();
-	//}
+	}
 
 	// start
 	x=0,y=0,z=0,w=0;
