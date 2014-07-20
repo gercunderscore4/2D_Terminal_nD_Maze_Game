@@ -27,7 +27,7 @@ class m4 {
 		//////////////// META ////////////////
 		void do_stuff (void);
 		void play (void);
-		void play (int xs, int ys, int zs, int ws, int algs);
+		void play (int xs, int ys, int zs, int ws, int algs, int sights);
 		void test (int n, int xs, int ys, int zs, int ws);
 		void tutorial (void);
 		
@@ -44,6 +44,8 @@ class m4 {
 		int gx,gy,gz,gw;
 		// maze algorithm
 		int alg;
+		// sight algorithm
+		int sight;
 		// axes
 		int a0, a1, a2, a3;
 
@@ -62,10 +64,38 @@ class m4 {
 		void empty (void);
 		
 		//////////////// GRAPHICS ////////////////
+		void print_sight (int sights);
 		void print_clr (void);
 		void print_title_screen (void);
 		void print_man (void);
 		void print_all (void);
+		bool disc_s1r1c1b1 (int aint[4]);
+		bool disc_s1r1c1b2 (int aint[4]);
+		bool disc_s1r1c1b3 (int aint[4]);
+		bool disc_s1r2c1b1 (int aint[4]);
+		bool disc_s1r2c1b2 (int aint[4]);
+		bool disc_s1r2c1b3 (int aint[4]);
+		bool disc_s1r3c1b1 (int aint[4]);
+		bool disc_s1r3c1b2 (int aint[4]);
+		bool disc_s1r3c1b3 (int aint[4]);
+		bool disc_s1r1c2b1 (int aint[4]);
+		bool disc_s1r1c2b2 (int aint[4]);
+		bool disc_s1r1c2b3 (int aint[4]);
+		bool disc_s1r2c2b1 (int aint[4]);
+		bool disc_s1r2c2b2 (int aint[4]);
+		bool disc_s1r2c2b3 (int aint[4]);
+		bool disc_s1r3c2b1 (int aint[4]);
+		bool disc_s1r3c2b2 (int aint[4]);
+		bool disc_s1r3c2b3 (int aint[4]);
+		bool disc_s2r1c1b1 (int aint[4]);
+		bool disc_s2r1c1b2 (int aint[4]);
+		bool disc_s2r1c1b3 (int aint[4]);
+		bool disc_s2r2c1b1 (int aint[4]);
+		bool disc_s2r2c1b2 (int aint[4]);
+		bool disc_s2r2c1b3 (int aint[4]);
+		bool disc_s2r3c1b1 (int aint[4]);
+		bool disc_s2r3c1b2 (int aint[4]);
+		bool disc_s2r3c1b3 (int aint[4]);
 		void print_disc (void);
 		void print_data (void);
 		void disc_line_of_sight (void);
