@@ -82,7 +82,7 @@ void m4::play (void)
 /*
  * Play, automatic size selection.
  */
-void m4::play (int xs, int ys, int zs, int ws, int algs)
+void m4::play (int xs, int ys, int zs, int ws, int algs, int sights)
 {
 	while (true) {
 		// clear screen
@@ -104,6 +104,7 @@ void m4::play (int xs, int ys, int zs, int ws, int algs)
 		//getchar();
 		
 		// play
+		sight = sights;
 		control();
 		
 		// deallocate
@@ -375,6 +376,48 @@ void m4::empty (void)
 ////////////////////////////////////////////////////////////////
 ////////////////           GRAPHICS             ////////////////
 ////////////////////////////////////////////////////////////////
+
+/*
+ * Print based on sight algorithm.
+ */
+void m4::print_sight (int sights)
+{
+	switch (sights) {
+		case S_FULL:
+			print_all();
+			break;
+		case S_RANGE:
+			clear_flag_all(F_DISC);
+			disc_ranged(RANGE);
+			print_disc();
+			break;
+		case S_RANGE_DISC:
+			disc_ranged(RANGE);
+			print_disc();
+			break;
+		case S_LOS:
+			clear_flag_all(F_DISC);
+			disc_line_of_sight();
+			print_disc();
+			break;
+		case S_LOS_DISC:
+			disc_line_of_sight();
+			print_disc();
+			break;
+		case S_LOS_RANGE:
+			clear_flag_all(F_DISC);
+			disc_line_of_sight_ranged(RANGE);
+			print_disc();
+			break;
+		case S_LOS_RANGE_DISC:
+			disc_line_of_sight_ranged(RANGE);
+			print_disc();
+			break;
+		default:
+			print_all();
+			break;
+	}
+}
 
 /*
  * Clear screen.
@@ -715,10 +758,701 @@ void m4::print_all (void)
     ..............  ::WU::WU::WU::  ..............  
     ..............  ::::::::::::::  ..............  
                     
+    ::YD::  ::::::  
+    XD  XU  ::ZU::  
+    ::YU::  ::::::  
+                    
+    ::::::  ......  
+    ::WU::  ......  
+    ::::::  ......  
 */
 /*
  * Not implemented. Prints discovered areas only.
  */
+bool m4::disc_s1r1c1b1 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		aint[a0]++;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		return true;
+	}
+	
+	aint[a0]++;
+	return false;
+}
+
+bool m4::disc_s1r1c1b2 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a1]++;
+	return false;
+}
+
+bool m4::disc_s1r1c1b3 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		return true;
+	}
+	
+	aint[a1]++;
+	return false;
+}
+
+bool m4::disc_s1r2c1b1 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		return true;
+	} 
+
+	aint[a0]++;
+	return false;
+}
+
+bool m4::disc_s1r2c1b2 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	return false;
+}
+
+bool m4::disc_s1r2c1b3 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	return false;
+}
+
+bool m4::disc_s1r3c1b1 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		return true;
+	} 
+	
+	aint[a0]++;
+	return false;
+}
+
+bool m4::disc_s1r3c1b2 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	return false;
+}
+
+bool m4::disc_s1r3c1b3 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	return false;
+}
+
+bool m4::disc_s1r1c2b1 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		aint[a0]++;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		return true;
+	}
+	
+	aint[a2]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		aint[a2]--;
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		aint[a2]--;
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		return true;
+	}
+	
+	aint[a2]--;
+	return false;
+}
+
+bool m4::disc_s1r1c2b2 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a2]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		aint[a2]--;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		return true;
+	}
+	
+	aint[a2]--;
+	return false;
+}
+
+bool m4::disc_s1r1c2b3 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		aint[a0]--;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		return true;
+	}
+	
+	aint[a2]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		aint[a2]--;
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		aint[a2]--;
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		return true;
+	}
+	
+	aint[a2]--;
+	return false;
+}
+
+bool m4::disc_s1r2c2b1 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		return true;
+	} 
+	
+	aint[a2]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		aint[a2]--;
+		return true;
+	} 
+	
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		return true;
+	} 
+	
+	aint[a2]--;
+	return false;
+}
+
+bool m4::disc_s1r2c2b2 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a2]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		return true;
+	} 
+	
+	aint[a2]--;
+	return false;
+}
+
+bool m4::disc_s1r2c2b3 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		return true;
+	} 
+	
+	aint[a2]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		aint[a2]--;
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		return true;
+	} 
+	
+	aint[a2]--;
+	return false;
+}
+
+bool m4::disc_s1r3c2b1 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		return true;
+	} 
+	
+	aint[a2]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		aint[a2]--;
+		return true;
+	} 
+
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		return true;
+	} 
+	
+	aint[a2]--;
+	return false;
+}
+
+bool m4::disc_s1r3c2b2 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a2]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+
+	aint[a2]--;
+	return false;
+}
+
+bool m4::disc_s1r3c2b3 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	}
+	
+	aint[a2]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
+		return true;
+	}
+
+	aint[a2]--;
+	return false;
+}
+
+bool m4::disc_s2r1c1b1 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		aint[a0]++;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		return true;
+	}
+	
+	aint[a3]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		aint[a3]--;
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		aint[a3]--;
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		return true;
+	}
+	
+	aint[a3]--;
+	return false;
+}
+
+bool m4::disc_s2r1c1b2 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a3]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		aint[a3]--;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		return true;
+	}
+	
+	aint[a3]--;
+	return false;
+}
+
+bool m4::disc_s2r1c1b3 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a1]++;
+		aint[a0]--;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		return true;
+	}
+	
+	aint[a3]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		aint[a3]--;
+		return true;
+	} 
+	
+	aint[a1]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		aint[a3]--;
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		aint[a1]++;
+		return true;
+	} 
+	
+	aint[a1]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		return true;
+	}
+	
+	aint[a3]--;
+	return false;
+}
+
+bool m4::disc_s2r2c1b1 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		return true;
+	} 
+	
+	aint[a3]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		aint[a3]--;
+		return true;
+	} 
+	
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		return true;
+	} 
+	
+	aint[a3]--;
+	return false;
+}
+
+bool m4::disc_s2r2c1b2 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a3]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		return true;
+	} 
+	
+	aint[a3]--;
+	return false;
+}
+
+bool m4::disc_s2r2c1b3 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		return true;
+	} 
+	
+	aint[a3]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]--;
+		aint[a3]--;
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		return true;
+	} 
+	
+	aint[a3]--;
+	return false;
+}
+
+bool m4::disc_s2r3c1b1 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a0]--;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		return true;
+	} 
+	
+	aint[a3]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a0]++;
+		aint[a3]--;
+		return true;
+	}
+
+	aint[a0]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		return true;
+	} 
+	
+	aint[a3]--;
+	return false;
+}
+
+bool m4::disc_s2r3c1b2 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	} 
+	
+	aint[a3]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		return true;
+	} 
+
+	aint[a3]--;
+	return false;
+}
+
+bool m4::disc_s2r3c1b3 (int aint[4])
+{
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		return true;
+	}
+	
+	aint[a3]++;
+	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a3]--;
+		return true;
+	}
+
+	aint[a3]--;
+	return false;
+}
+
 void m4::print_disc (void)
 {
 	// debug
@@ -728,6 +1462,7 @@ void m4::print_disc (void)
 	const int alen[] = {lenx, leny, lenz, lenw};
 	const node_t awd[] = {XD, YD, ZD, WD};
 	const node_t awu[] = {XU, YU, ZU, WU};
+	int silly[] = {0, 0, 0, 0};
 	
 	for (aint[a3]=0; aint[a3]<alen[a3]; aint[a3]++) {
 		for (aint[a1]=0; aint[a1]<alen[a1]; aint[a1]++) {
@@ -738,12 +1473,25 @@ void m4::print_disc (void)
 				// COL 1
 				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
 					// BLOCK 1
-					printf("%s", WALL);
+					if ( disc_s1r1c1b1(aint) ) {
+						printf("%s", WALL);
+					} else {
+						printf("%s", UNDISC);
+					}
 					// BLOCK 2
-					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a1] ? WALL : SPACE);
+					if ( disc_s1r1c1b2(aint) ) {
+						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a1] ? WALL : SPACE);
+					} else {
+						printf("%s", UNDISC);
+					}
 				}
 				// BLOCK 3
-				printf("%s", WALL);
+				aint[a0] = alen[a0]-1;
+				if ( disc_s1r1c1b3(aint) ) {
+					printf("%s", WALL);
+				} else {
+					printf("%s", UNDISC);
+				}
 				
 				// SECTION 1
 				// ROW 1
@@ -752,12 +1500,25 @@ void m4::print_disc (void)
 					printf("%s", HSKIP);
 					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
 						// BLOCK 1
-						printf("%s", WALL);
+						if ( disc_s1r1c2b1(aint) ) {
+							printf("%s", WALL);
+						} else {
+							printf("%s", UNDISC);
+						}
 						// BLOCK 2
-						printf("%s", WALL);
+						if ( disc_s1r1c2b2(aint) ) {
+							printf("%s", WALL);
+						} else {
+							printf("%s", UNDISC);
+						}
 					}
 					// BLOCK 3
-					printf("%s", WALL);
+					aint[a0] = alen[a0]-1;
+					if ( disc_s1r1c2b3(aint) ) {
+						printf("%s", WALL);
+					} else {
+						printf("%s", UNDISC);
+					}
 					printf("%s", HSKIP);
 				}
 			}
@@ -769,10 +1530,16 @@ void m4::print_disc (void)
 				// COL 1
 				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
 					// BLOCK 1
-					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a0] ? WALL : SPACE);
+					if ( disc_s1r2c1b1(aint) ) {
+						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awd[a0] ? WALL : SPACE);
+					} else {
+						printf("%s", UNDISC);
+					}
 					// BLOCK 2
 					// USER/GOAL/ETC
-					if (x==aint[0] && y==aint[1] && z==aint[2] && w==aint[3]) {
+					if ( !disc_s1r2c1b2(aint) ) {
+						printf("%s", UNDISC);
+					} else if (x==aint[0] && y==aint[1] && z==aint[2] && w==aint[3]) {
 						printf("%s", USER);
 					} else if (has_flag(aint[0],aint[1],aint[2],aint[3],F_GOAL)) {
 						printf("%s", GOAL);
@@ -782,7 +1549,11 @@ void m4::print_disc (void)
 				}
 				aint[a0] = alen[a0]-1;
 				// BLOCK 3
-				printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a0] ? WALL : SPACE);
+				if ( disc_s1r2c1b3(aint) ) {
+					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a0] ? WALL : SPACE);
+				} else {
+					printf("%s", UNDISC);
+				}
 				
 				// SECTION 1
 				// ROW 2
@@ -791,12 +1562,25 @@ void m4::print_disc (void)
 					printf("%s", HSKIP);
 					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
 						// BLOCK 1
-						printf("%s", WALL);
+						if ( disc_s1r2c2b1(aint) ) {
+							printf("%s", WALL);
+						} else {
+							printf("%s", UNDISC);
+						}
 						// BLOCK 2
-						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a2] ? WALL : SPACE);
+						if ( disc_s1r2c2b2(aint) ) {
+							printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a2] ? WALL : SPACE);
+						} else {
+							printf("%s", UNDISC);
+						}
 					}
 					// BLOCK 3
-					printf("%s", WALL);
+					aint[a0] = alen[a0]-1;
+					if ( disc_s1r2c2b3(aint) ) {
+						printf("%s", WALL);
+					} else {
+						printf("%s", UNDISC);
+					}
 					printf("%s", HSKIP);
 				}
 			}
@@ -810,12 +1594,25 @@ void m4::print_disc (void)
 			// COL 1
 			for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
 				// BLOCK 1
-				printf("%s", WALL);
+				if ( disc_s1r3c1b1(aint) ) {
+					printf("%s", WALL);
+				} else {
+					printf("%s", UNDISC);
+				}
 				// BLOCK 2
-				printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a1] ? WALL : SPACE);
+				if ( disc_s1r3c1b2(aint) ) {
+					printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a1] ? WALL : SPACE);
+				} else {
+					printf("%s", UNDISC);
+				}
 			}
 			// BLOCK 3
-			printf("%s", WALL);
+			aint[a0] = alen[a0]-1;
+			if ( disc_s1r3c1b3(aint) ) {
+				printf("%s", WALL);
+			} else {
+				printf("%s", UNDISC);
+			}
 				
 			// SECTION 1
 			// ROW 3
@@ -824,12 +1621,25 @@ void m4::print_disc (void)
 				printf("%s", HSKIP);
 				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
 					// BLOCK 1
-					printf("%s", WALL);
+					if ( disc_s1r3c2b1(aint) ) {
+						printf("%s", WALL);
+					} else {
+						printf("%s", UNDISC);
+					}
 					// BLOCK 2
-					printf("%s", WALL);
+					if ( disc_s1r3c2b2(aint) ) {
+						printf("%s", WALL);
+					} else {
+						printf("%s", UNDISC);
+					}
 				}
 				// BLOCK 3
-				printf("%s", WALL);
+				aint[a0] = alen[a0]-1;
+				if ( disc_s1r3c2b3(aint) ) {
+					printf("%s", WALL);
+				} else {
+					printf("%s", UNDISC);
+				}
 				printf("%s", HSKIP);
 			}
 		}
@@ -845,12 +1655,25 @@ void m4::print_disc (void)
 					// COL 1
 					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
 						// BLOCK 1
-						printf("%s", WALL);
+						if ( disc_s2r1c1b1(aint) ) {
+							printf("%s", WALL);
+						} else {
+							printf("%s", UNDISC);
+						}
 						// BLOCK 2
-						printf("%s", WALL);
+						if ( disc_s2r1c1b2(aint) ) {
+							printf("%s", WALL);
+						} else {
+							printf("%s", UNDISC);
+						}
 					}
 					// BLOCK 3
-					printf("%s", WALL);
+					aint[a0] = alen[a0]-1;
+					if ( disc_s2r1c1b3(aint) ) {
+						printf("%s", WALL);
+					} else {
+						printf("%s", UNDISC);
+					}
 					
 					// SECTION 2
 					// ROW 1
@@ -876,12 +1699,25 @@ void m4::print_disc (void)
 					// COL 1
 					for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
 						// BLOCK 1
-						printf("%s", WALL);
+						if ( disc_s2r2c1b1(aint) ) {
+							printf("%s", WALL);
+						} else {
+							printf("%s", UNDISC);
+						}
 						// BLOCK 2
-						printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a3] ? WALL : SPACE);
+						if ( disc_s2r2c1b2(aint) ) {
+							printf("%s", arry[aint[0]][aint[1]][aint[2]][aint[3]]&awu[a3] ? WALL : SPACE);
+						} else {
+							printf("%s", UNDISC);
+						}
 					}
 					// BLOCK 3
-					printf("%s", WALL);
+					aint[a0] = alen[a0]-1;
+					if ( disc_s2r2c1b3(aint) ) {
+						printf("%s", WALL);
+					} else {
+						printf("%s", UNDISC);
+					}
 					
 					// SECTION 2
 					// ROW 2
@@ -895,6 +1731,7 @@ void m4::print_disc (void)
 							printf("%s", SPACE);
 						}
 						// BLOCK 3
+						aint[a0] = alen[a0]-1;
 						printf("%s", SPACE);
 						printf("%s", HSKIP);
 					}
@@ -907,12 +1744,25 @@ void m4::print_disc (void)
 				// COL 1
 				for (aint[a0]=0; aint[a0]<alen[a0]; aint[a0]++) {
 					// BLOCK 1
-					printf("%s", WALL);
+					if ( disc_s2r3c1b1(aint) ) {
+						printf("%s", WALL);
+					} else {
+						printf("%s", UNDISC);
+					}
 					// BLOCK 2
-					printf("%s", WALL);
+					if ( disc_s2r3c1b2(aint) ) {
+						printf("%s", WALL);
+					} else {
+						printf("%s", UNDISC);
+					}
 				}
 				// BLOCK 3
-				printf("%s", WALL);
+				aint[a0] = alen[a0]-1;
+				if ( disc_s2r3c1b3(aint) ) {
+					printf("%s", WALL);
+				} else {
+					printf("%s", UNDISC);
+				}
 				
 				// SECTION 2
 				// ROW 3
@@ -926,6 +1776,7 @@ void m4::print_disc (void)
 						printf("%s", SPACE);
 					}
 					// BLOCK 3
+					aint[a0] = alen[a0]-1;
 					printf("%s", SPACE);
 					printf("%s", HSKIP);
 				}
@@ -1099,7 +1950,6 @@ void m4::disc_line_of_sight_ranged (int range)
 /*
  * Discovers ranged sight.
  * For near sight only, clear disc flags before this in control loop.
- * Untested, may seg-fault (off-by-one in range).
  */
 void m4::disc_ranged (int range)
 {
@@ -1169,6 +2019,18 @@ void m4::get_size (void)
 		"4 = Hunt-and-kill\n"
 		);
 	scanf("%i", &alg);
+
+	printf(
+		"Sight algorithm:\n"
+		"0 = Full sight\n"
+		"1 = Ranged sight\n"
+		"2 = Ranged sight with memory\n"
+		"3 = Line-of-sight\n"
+		"4 = Line-of-sight with memory\n"
+		"5 = Line-of-sight ranged\n"
+		"6 = Line-of-sight ranged with memory\n"
+		);
+	scanf("%i", &sight);
 }
 
 /*
@@ -1193,7 +2055,7 @@ void m4::build_maze(int algs)
 		case ALG_HUNT:
 			hunt_and_kill_build();
 			break;
-		default:		
+		default:
 			box();
 			gx=lenx-1, gy=leny-1, gz=lenz-1, gw=lenw-1;
 			set_flag(gx,gy,gz,gw,F_GOAL);
@@ -1213,7 +2075,7 @@ bool m4::control (void)
 	while (cont) {
 		print_clr();
 		print_man();
-		print_all();
+		print_sight(sight);
 		// debug
 		//printf ("%i %i %i %i\n", x, y, z, w);
 		scanf("%c", &comm);
@@ -1248,7 +2110,8 @@ bool m4::control (void)
 		if (has_flag(F_GOAL)) {
 			print_clr();
 			print_man();
-			print_all();
+			print_sight(sight);
+			
 			printf("WIN!\n\a");
 			// delete remaining commands
 			while (getchar() != '\n');
