@@ -4,14 +4,14 @@
 #define CLR_LEN 100
 
 // all tiles must be equal size
-#define SPACE "  "
-#define WALL  "▓▓"
-#define USER  "[]"
-#define GOAL  "()"
-#define TEMP  "::"
-#define HSKIP "  "
-#define VSKIP "\n"
-#define UNDIS ".."
+#define SPACE  "  "
+#define WALL   "▓▓"
+#define USER   "[]"
+#define GOAL   "()"
+#define TEMP   "::"
+#define HSKIP  "  "
+#define VSKIP  "\n"
+#define UNDISC ".."
 
 // wall flags
 // D down
@@ -67,5 +67,16 @@
 #define ALG_DEPTH  2
 #define ALG_BREAD  3
 #define ALG_HUNT   4
+
+// choose disc algorithm
+#define S_FULL            0
+#define S_RANGE           1
+#define S_RANGE_DISC      2
+#define	S_LOS             3
+#define S_LOS_DISC        4
+#define S_LOS_RANGE       5
+#define S_LOS_RANGE_DISC  6
+// range
+#define RANGE 2
 
 #endif // MN_HPP_
