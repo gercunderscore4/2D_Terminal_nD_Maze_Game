@@ -7,6 +7,7 @@ Generates Euclidean, spatial, 4D mazes.
 For lower-dimensional mazes, enter length of 1 on higher dimensions.
 Includes right angle rotation (dimension swapping/d-swap).
 Coded mostly from my Android phone using C4droid.
+Discovery still has some minor errors to be worked out.
 
 FEATURES:
 - Maze building algorithms:
@@ -19,6 +20,10 @@ FEATURES:
   - depth-first
   - breadth-first
 - Dimesion swapping (rotation)
+- Multiple print styles:
+  - "line-of-sight"
+  - "ranged"
+  - "discovery"
 
 TO DO:
 - Maze building algorithms:
@@ -27,10 +32,6 @@ TO DO:
   - entering commands (press enter)
   - movement
   - dimension swapping
-- Multiple print styles:
-  - "line-of-sight"
-  - "ranged"
-  - "discovery"
 
 FOR FULL VERSION:
 - Windowed
