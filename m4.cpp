@@ -384,6 +384,8 @@ void m4::print_sight (int sights)
 {
 	switch (sights) {
 		case S_FULL:
+			//set_flag_all(F_DISC);
+			//print_disc();
 			print_all();
 			break;
 		case S_RANGE:
@@ -1152,6 +1154,7 @@ bool m4::disc_s1r3c2b2 (int aint[4])
 	
 	aint[a2]++;
 	if ( has_flag(aint[0],aint[1],aint[2],aint[3],F_DISC) ) {
+		aint[a2]--;
 		return true;
 	} 
 
@@ -1462,7 +1465,6 @@ void m4::print_disc (void)
 	const int alen[] = {lenx, leny, lenz, lenw};
 	const node_t awd[] = {XD, YD, ZD, WD};
 	const node_t awu[] = {XU, YU, ZU, WU};
-	int silly[] = {0, 0, 0, 0};
 	
 	for (aint[a3]=0; aint[a3]<alen[a3]; aint[a3]++) {
 		for (aint[a1]=0; aint[a1]<alen[a1]; aint[a1]++) {
@@ -1613,7 +1615,7 @@ void m4::print_disc (void)
 			} else {
 				printf("%s", UNDISC);
 			}
-				
+			
 			// SECTION 1
 			// ROW 3
 			// COL 2
@@ -1738,6 +1740,7 @@ void m4::print_disc (void)
 				}
 				printf("\n");
 			}
+			aint[a1] = alen[a1]-1;
 			for (aint[a2]=0; aint[a2]<alen[a2]; aint[a2]++) {
 				// SECTION 2
 				// ROW 3
@@ -1891,56 +1894,56 @@ void m4::disc_line_of_sight_ranged (int range)
 	int i=x, j=y, k=z, h=w;
 	
 	// X-
-	for (int ii=0; ii<range && !can_move(i,j,k,h,XM); ii++) {
+	for (int ii=0; ii<range && can_move(i,j,k,h,XM); ii++) {
 		i--;
 		set_flag(i,j,k,h,F_DISC);
 	}
 	i=x;
 	
 	// X+
-	for (int ii=0; ii<range && !can_move(i,j,k,h,XP); ii++) {
+	for (int ii=0; ii<range && can_move(i,j,k,h,XP); ii++) {
 		i++;
 		set_flag(i,j,k,h,F_DISC);
 	}
 	i=x;
 	
 	// Y-
-	for (int ii=0; ii<range && !can_move(i,j,k,h,YM); ii++) {
+	for (int ii=0; ii<range && can_move(i,j,k,h,YM); ii++) {
 		j--;
 		set_flag(i,j,k,h,F_DISC);
 	}
 	j=y;
 	
 	// Y+
-	for (int ii=0; ii<range && !can_move(i,j,k,h,YP); ii++) {
+	for (int ii=0; ii<range && can_move(i,j,k,h,YP); ii++) {
 		j++;
 		set_flag(i,j,k,h,F_DISC);
 	}
 	j=y;
 	
 	// Z-
-	for (int ii=0; ii<range && !can_move(i,j,k,h,ZM); ii++) {
+	for (int ii=0; ii<range && can_move(i,j,k,h,ZM); ii++) {
 		k--;
 		set_flag(i,j,k,h,F_DISC);
 	}
 	k=z;
 	
 	// Z+
-	for (int ii=0; ii<range && !can_move(i,j,k,h,ZP); ii++) {
+	for (int ii=0; ii<range && can_move(i,j,k,h,ZP); ii++) {
 		k++;
 		set_flag(i,j,k,h,F_DISC);
 	}
 	k=z;
 	
 	// W-
-	for (int ii=0; ii<range && !can_move(i,j,k,h,WM); ii++) {
+	for (int ii=0; ii<range && can_move(i,j,k,h,WM); ii++) {
 		h--;
 		set_flag(i,j,k,h,F_DISC);
 	}
 	h=w;
 	
 	// W+
-	for (int ii=0; ii<range && !can_move(i,j,k,h,WP); ii++) {
+	for (int ii=0; ii<range && can_move(i,j,k,h,WP); ii++) {
 		h++;
 		set_flag(i,j,k,h,F_DISC);
 	}
@@ -2075,6 +2078,7 @@ bool m4::control (void)
 	while (cont) {
 		print_clr();
 		print_man();
+		print_data();
 		print_sight(sight);
 		// debug
 		//printf ("%i %i %i %i\n", x, y, z, w);
