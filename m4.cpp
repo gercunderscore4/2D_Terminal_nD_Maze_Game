@@ -1103,6 +1103,8 @@ void m4::disc_line_of_sight_ranged (int range)
  */
 void m4::disc_ranged (int range)
 {
+	int i=x, j=y, k=z, h=w;
+	
 	int i_min = i-range > 0 ? i-range : 0;
 	int i_max = i+range < lenx ? i+range : lenx;
 	int j_min = j-range > 0 ? j-range : 0;
