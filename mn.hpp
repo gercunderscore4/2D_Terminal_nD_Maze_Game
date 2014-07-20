@@ -77,6 +77,6 @@
 #define S_LOS_RANGE       5
 #define S_LOS_RANGE_DISC  6
 // range
-#define RANGE 2
+#define RANGE 1
 
 #endif // MN_HPP_
