@@ -34,7 +34,7 @@
 #define LEN_MAX 100
 
 // controls
-#define RESET ' '
+#define RESET '`'
 // M minus --
 // P plus ++
 #define XM 'a'
@@ -60,5 +60,12 @@
 #define DSWAPY '1'
 #define DSWAPZ '2'
 #define DSWAPW '3'
+
+// choose maze algorithm
+#define ALG_RAND   0
+#define ALG_RAND_S 1
+#define ALG_DEPTH  2
+#define ALG_BREAD  3
+#define ALG_HUNT   4
 
 #endif // MN_HPP_
