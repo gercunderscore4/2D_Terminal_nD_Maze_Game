@@ -2078,7 +2078,6 @@ bool m4::control (void)
 	while (cont) {
 		print_clr();
 		print_man();
-		print_data();
 		print_sight(sight);
 		// debug
 		//printf ("%i %i %i %i\n", x, y, z, w);
