@@ -1,11 +1,9 @@
 INFO
 2D nD Maze Game
 Author: Geoffrey Card
-Last updated: 2014-07-20 | 01:33
+Last updated: 2014-08-08 | 15:25
 
 Generates Euclidean, spatial, 4D mazes.
-For lower-dimensional mazes, enter length of 1 on higher dimensions.
-Includes right angle rotation (dimension swapping/d-swap).
 Coded mostly from my Android phone using C4droid.
 
 FEATURES:
@@ -18,23 +16,18 @@ FEATURES:
 - Maze sovling algorithms:
   - depth-first
   - breadth-first
-- Dimesion swapping (rotation)
 - Multiple print styles:
   - "line-of-sight"
   - "ranged"
   - "discovery"
+- Real-time controls
 
 TO DO:
 - Maze building algorithms:
   - Eller
-- Tutorials:
-  - entering commands (press enter)
-  - movement
-  - dimension swapping
+- Dimesion swapping (rotation)
 
 FOR FULL VERSION:
-- Windowed
-- Real-time controls
 - 3D graphics*
 - 3D intersection with convex hull algorithm*
 
