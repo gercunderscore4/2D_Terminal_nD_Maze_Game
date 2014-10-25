@@ -1,8 +1,9 @@
 INFO
-2D nD Maze Game
+2D nD Maze
 Author: Geoffrey Card
-Last updated: 2014-07-20 | 01:33
+Last updated: 2014-10-24 | 23:02
 
+Terminal-based maze game.
 Generates Euclidean, spatial, 4D mazes.
 For lower-dimensional mazes, enter length of 1 on higher dimensions.
 Includes right angle rotation (dimension swapping/d-swap).
@@ -11,18 +12,17 @@ Coded mostly from my Android phone using C4droid.
 FEATURES:
 - Maze building algorithms:
   - random
-  - random solved
   - depth-first
   - breadth-first (Prim)
   - hunt & kill
 - Maze sovling algorithms:
   - depth-first
   - breadth-first
-- Dimesion swapping (rotation)
+- Dimesion swapping (4D rotation)
 - Multiple print styles:
-  - "line-of-sight"
-  - "ranged"
-  - "discovery"
+  - line-of-sight
+  - absolute range
+  - with or without memory
 
 TO DO:
 - Maze building algorithms:
@@ -31,12 +31,3 @@ TO DO:
   - entering commands (press enter)
   - movement
   - dimension swapping
-
-FOR FULL VERSION:
-- Windowed
-- Real-time controls
-- 3D graphics*
-- 3D intersection with convex hull algorithm*
-
-* Already implemented elsewhere**.
-** And if you believe that, I have a proof for a^n + b^n != c^n for natural a,b,c and n > 2 that's too big to fit here.
