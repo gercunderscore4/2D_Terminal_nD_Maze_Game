@@ -1,4 +1,3 @@
-SHELL=/bin/sh
 CC=g++
 CFLAGS=-Wall -Wextra
 EXEC=m
