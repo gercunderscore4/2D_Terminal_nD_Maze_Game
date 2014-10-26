@@ -2,7 +2,7 @@
  * FILE:    m4.hpp
  * PURPOSE: 4D maze class
  * AUTHOR:  Geoffrey Card
- * DATE:    ????-??-?? - 2014-07-11
+ * DATE:    ????-??-?? - 
  * NOTES:   print_all cannot handle multiples of a dimension (an == am)
  */
 
@@ -14,11 +14,9 @@
 #include <queue>
 #include <vector>
 #include <cmath>
-#include <cstdint>
 
-typedef uint32_t node_t;
+typedef unsigned int node_t;
 typedef node_t dir_t; // so that it can share XD...
-typedef uint32_t pos_t;
 
 // wall flags
 // D down
@@ -39,7 +37,7 @@ typedef uint32_t pos_t;
 
 // maze maximum size
 #define LEN_MIN 1
-#define LEN_MAX 10 // cannot be greater than 255, or pos_t size must change
+#define LEN_MAX 40
 
 // dimension swap
 #define DIMX 0
@@ -83,32 +81,22 @@ enum disc_t {
 	S_LOS_RANGE_DISC,
 	S_DEFAULT
 };
-#define RANGE 1
+#define RANGE 2
 
-// for storing 3D points
-typedef struct d3 {
-	unsigned int x;
-	unsigned int y;
-	unsigned int z;
-} d3;
-
-// for storing 4D points
-typedef struct d4 {
+typedef struct d4_t {
 	unsigned int x;
 	unsigned int y;
 	unsigned int z;
 	unsigned int w;
-} d4;
+} d4_t;
 
-// for storing points and direction of origin
-typedef struct prim {
-	pos_t node;
+typedef struct prim_t {
 	unsigned int x;
 	unsigned int y;
 	unsigned int z;
 	unsigned int w;
 	dir_t dir;
-} prim;
+} prim_t;
 
 class m4_c {
 	public:
@@ -117,16 +105,26 @@ class m4_c {
 		~m4_c (void);
 		
 		//////////////// MAKE NEW MAZE ////////////////
-		void makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws);
-		void makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs);
-		void makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs, disc_t sights);
-		void makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs, disc_t sights, goal_t goal);
+		void make_maze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws);
+		void make_maze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs);
+		void make_maze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs, disc_t sights);
+		void make_maze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs, disc_t sights, goal_t goal);
+
+		//////////////// MOVE ////////////////
+		void move(dir_t dir);
+		// dir one of XD, XU, etc
+		bool can_move (dir_t dir);
+		bool can_move (unsigned int i, unsigned int j, unsigned int k, unsigned int h, dir_t dir);
+		// position
+		bool set_x (unsigned int nx);
+		bool set_y (unsigned int ny);
+		bool set_z (unsigned int nz);
+		bool set_w (unsigned int nw);
 
 		//////////////// DIMENSION SWAP ////////////////
-		void move(dir_t dir);
 		void d_swap_abs (unsigned int d1, unsigned int d2);
 		void d_swap_rel (unsigned int d1, unsigned int d2);
-		void discover(void);
+		void discover (void);
 		
 		//////////////// GET ////////////////
 		// lengths
@@ -148,16 +146,6 @@ class m4_c {
 		bool get_flag (node_t flag);
 		bool get_flag (unsigned int i, unsigned int j, unsigned int k, unsigned int h, node_t flag);
 		
-		//////////////// MOVE ////////////////
-		// dir one of XD, XU, etc
-		bool can_move (dir_t dir);
-		bool can_move (unsigned int i, unsigned int j, unsigned int k, unsigned int h, dir_t dir);
-		// position
-		bool set_x (unsigned int nx);
-		bool set_y (unsigned int ny);
-		bool set_z (unsigned int nz);
-		bool set_w (unsigned int nw);
-
 	private:
 		//////////////// VARIABLES ////////////////
 		unsigned int lenx, leny, lenz, lenw;
@@ -171,19 +159,16 @@ class m4_c {
 		void degen (void);
 		
 		//////////////// BOXES ////////////////
-		// closes off maze, does not interfere with internal walls
 		void frame (void);
-		// open space inside
 		void box (void);
-		// no space inside
 		void cage (void);
 		
 		//////////////// DISCOVERY ////////////////
 		void disc_line_of_sight (void);
 		void disc_line_of_sight_ranged (unsigned int range);
 		void disc_ranged (unsigned int range);
+		
 		//////////////// CHECKS ////////////////
-		// checks
 		bool valid (void);
 		bool valid (unsigned int i, unsigned int j, unsigned int k, unsigned int h);
 		void set_flag (node_t flag);
@@ -197,13 +182,11 @@ class m4_c {
 		bool smash (unsigned int i, unsigned int j, unsigned int k, unsigned int h, dir_t dir);
 
 		//////////////// SOLVERS ////////////////
-		// solvers
 		int depth_solve (void);
 		int rec_depth_solve (void);
-		int breadth_solve (void);
+		bool breadth_solve (void);
 		
 		//////////////// BUILDERS ////////////////
-		// maze algorithms
 		void random_build (void);
 		void depth_build (void);
 		void rec_depth_build (void);
@@ -214,7 +197,7 @@ class m4_c {
 		bool kill_node (void);
 		
 		//////////////// GOAL ////////////////
-		d4 longest_solve (void);
+		d4_t longest_solve (void);
 		void set_goal_simple (void);
 		void set_goal_long (void);
 		void set_goal_long_rand (void);
