@@ -2,8 +2,8 @@
  * FILE:    m4.cpp
  * PURPOSE: 4D maze class
  * AUTHOR:  Geoffrey Card
- * DATE:    ????-??-?? - 2014-07-19
- * NOTES:   print_all cannot handle multiples of a dimension (an == am)
+ * DATE:    ????-??-?? - 
+ * NOTES:   
  */
 
 #include "engine.h"
@@ -14,9 +14,6 @@ using namespace std;
 ////////////////            CLASS               ////////////////
 ////////////////////////////////////////////////////////////////
 
-/*
- * Class constructor.
- */
 engine_c::engine_c (void)
 {
 }
@@ -29,60 +26,32 @@ engine_c::~engine_c (void)
 ////////////////             META               ////////////////
 ////////////////////////////////////////////////////////////////
 
-/*
- * Play, manual size selection.
- */
 void engine_c::play (void)
 {
 	print_title_screen();
 	
 	while (true) {
-		// clear screen
 		print_clr();
-		
-		// size and build
+
 		if (!get_size_and_make()) {
 			break;
 		}
 		
-		// solve
-		//printf("solving:\n");
-		//printf("depth solve: %i\n", rec_depth_solve());
-		//printf("breadth solve: %i\n", breadth_solve());
-		// pause
-		//getchar();
-		
-		// play
 		control();
 	}
 }
 
-/*
- * Play, automatic size selection.
- */
 void engine_c::play (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs, disc_t sights, goal_t goal)
 {
 	while (true) {
-		// clear screen
 		print_clr();
 				
-		// build
-		makeMaze(lxs, lys, lzs, lws, algs, sights, goal);		
+		make_maze(lxs, lys, lzs, lws, algs, sights, goal);
 
-		// solve
-		//printf("solving:\n");
-		//printf("depth solve: %i\n", rec_depth_solve());
-		//printf("breadth solve: %i\n", breadth_solve());
-		//getchar();
-		
-		// play
 		control();
 	}
 }
 
-/*
- * Testing for benchmarking.
- */
 void engine_c::test (void)
 {
 }
@@ -128,7 +97,7 @@ bool engine_c::get_size_and_make (void)
 	if (n == 0) {
 		return false;
 	} else if ( !(n <= 4) ) { // written this way to deal with NaN issues
-		n = 2;
+		n = 1;
 	}
 	
 	// get size
@@ -151,16 +120,16 @@ bool engine_c::get_size_and_make (void)
 	
 	printf(
 		"Maze algorithm:\n"
-		"0 = Random\n"
+		"0 = Hunt-and-kill\n"
 		"1 = Depth-first\n"
 		"2 = Breadth-first (Prim)\n"
-		"3 = Hunt-and-kill\n"
+		"3 = Random\n"
 		"4 = No maze\n"
 		);
 	scanf("%u", &n);
 	switch (n) {
 		case 0:
-			alg = ALG_RAND;
+			alg = ALG_HUNT;
 			goal = G_LONGEST;
 			break;
 		case 1:
@@ -172,7 +141,7 @@ bool engine_c::get_size_and_make (void)
 			goal = G_LONGEST;
 			break;
 		case 3:
-			alg = ALG_HUNT;
+			alg = ALG_RAND;
 			goal = G_LONGEST;
 			break;
 		case 4:
@@ -192,12 +161,12 @@ bool engine_c::get_size_and_make (void)
 	printf(
 		"Sight algorithm:\n"
 		"0 = Full sight\n"
-		"1 = Ranged sight\n"
-		"2 = Ranged sight with memory\n"
-		"3 = Line-of-sight\n"
-		"4 = Line-of-sight with memory\n"
-		"5 = Line-of-sight ranged\n"
-		"6 = Line-of-sight ranged with memory\n"
+		"1 = Line-of-sight with memory\n"
+		"2 = Line-of-sight\n"
+		"3 = Line-of-sight ranged with memory\n"
+		"4 = Line-of-sight ranged\n"
+		"5 = Ranged sight with memory\n"
+		"6 = Ranged sight\n"
 		);
 	scanf("%u", &n);
 	switch (n) {
@@ -205,29 +174,29 @@ bool engine_c::get_size_and_make (void)
 			sights = S_FULL;
 			break;
 		case 1:
-			sights = S_RANGE;
-			break;
-		case 2:
-			sights = S_RANGE_DISC;
-			break;
-		case 3:
-			sights = S_LOS;
-			break;
-		case 4:
 			sights = S_LOS_DISC;
 			break;
-		case 5:
+		case 2:
+			sights = S_LOS;
+			break;
+		case 3:
+			sights = S_LOS_RANGE_DISC;
+			break;
+		case 4:
 			sights = S_LOS_RANGE;
 			break;
+		case 5:
+			sights = S_RANGE_DISC;
+			break;
 		case 6:
-			sights = S_LOS_RANGE_DISC;
+			sights = S_RANGE;
 			break;
 		default:
 			sights = S_DEFAULT;
 			break;
 	}
 	
-	makeMaze(lxs, lys, lzs, lws, alg, sights, goal);
+	make_maze(lxs, lys, lzs, lws, alg, sights, goal);
 	
 	return true;
 }
@@ -237,9 +206,11 @@ bool engine_c::get_size_and_make (void)
  */
 bool engine_c::control (void)
 {
-	bool cont = true;
-	char comm = ' ';
-
+	bool cont;
+	char comm;
+	const node_t awd[] = {XD, YD, ZD, WD};
+	const node_t awu[] = {XU, YU, ZU, WU};
+	
 	cont = true;
 	while (cont) {
 		// draw
@@ -254,29 +225,55 @@ bool engine_c::control (void)
 				cont = false;
 				break;
 			case XM:
-				if (can_move(XD)) set_x(get_x()-1);
+				move(awd[get_a0()]);
 				break;
 			case XP:
-				if (can_move(XU)) set_x(get_x()+1);
+				move(awu[get_a0()]);
 				break;
 			case YM:
-				if (can_move(YD)) set_y(get_y()-1);
+				move(awd[get_a1()]);
 				break;
 			case YP:
-				if (can_move(YU)) set_y(get_y()+1);
+				move(awu[get_a1()]);
 				break;
 			case ZM:
-				if (can_move(ZD)) set_z(get_z()-1);
+				move(awd[get_a2()]);
 				break;
 			case ZP:
-				if (can_move(ZU)) set_z(get_z()+1);
+				move(awu[get_a2()]);
 				break;
 			case WM:
-				if (can_move(WD)) set_w(get_w()-1);
+				move(awd[get_a3()]);
 				break;
 			case WP:
-				if (can_move(WU)) set_w(get_w()+1);
+				move(awu[get_a3()]);
 				break;
+			/*
+			case XM:
+				move(XD);
+				break;
+			case XP:
+				move(XU);
+				break;
+			case YM:
+				move(YD);
+				break;
+			case YP:
+				move(YU);
+				break;
+			case ZM:
+				move(ZD);
+				break;
+			case ZP:
+				move(ZU);
+				break;
+			case WM:
+				move(WD);
+				break;
+			case WP:
+				move(WU);
+				break;
+			*/
 			case DSWAPX:
 				d_swap_abs(DIMX, DIMX);				
 				break;
@@ -338,33 +335,103 @@ void engine_c::print_clr (void)
 	}
 }
 
-/*
- * Title screen.
- */
 void engine_c::print_title_screen (void)
 {
+	char c;
+	
 	// clear screen
 	print_clr();
 	
 	// title screen
 	printf(
-		"2D Terminal nD Maze Game\n"
-		"                        \n"
-		"   By Geoffrey Card     \n"
-		"                        \n"
-		"      press enter       \n"
-		"                        \n"
+		" 2D Terminal nD Maze Game\n"
+		"                         \n"
+		"    By Geoffrey Card     \n"
+		"                         \n"
+		"       press enter       \n"
+		"                         \n"
 	);
-	// press enter
-	char c = 0;
+	do {
+		c = getchar();
+	} while (c != '\n');
+	
+	print_clr();
+	printf(
+		"                        \n"
+		"       .                \n"
+		"                        \n"
+		"       press enter      \n"
+		"                        \n"
+		);
+	do {
+		c = getchar();
+	} while (c != '\n');
+	print_clr();
+	printf(
+		"       ----------       \n"
+		"                        \n"
+		"       press enter      \n"
+		"                        \n"
+		);
+	do {
+		c = getchar();
+	} while (c != '\n');
+	print_clr();
+	printf(
+		"       +--------+       \n"
+		"       |        |       \n"
+		"       |        |       \n"
+		"       |        |       \n"
+		"       |        |       \n"
+		"       +--------+       \n"
+		"                        \n"
+		"       press enter      \n"
+		"                        \n"
+		);
+	do {
+		c = getchar();
+	} while (c != '\n');
+	print_clr();
+	printf(
+		"             +--------+ \n"
+		"           / |      / | \n"
+		"         /   |    /   | \n"
+		"       +-----+--+     | \n"
+		"       |     |  |     | \n"
+		"       |     +--+-----+ \n"
+		"       |   /    |   /   \n"
+		"       | /      | /     \n"
+		"       +--------+       \n"
+		"                        \n"
+		"       press enter      \n"
+		"                        \n"
+		);
+	do {
+		c = getchar();
+	} while (c != '\n');
+	print_clr();
+	printf(
+		"       +--------+       \n"
+		"     / | \\    / | \\     \n"
+		"   /   |   \\/   |   \\   \n"
+		" +-----+--+  +--+-----+ \n"
+		" | \\   |  |/\\|  |   / | \n"
+		" |   \\ +-*+--+*-+ /   | \n"
+		" |   / +-*+--+*-+ \\   | \n"
+		" | /   |  |/\\|  |   \\ | \n"
+		" +-----+--+  +--+-----+ \n"
+		"   \\   |   /\\   |   /   \n"
+		"     \\ | /    \\ | /     \n"
+		"       +--------+       \n"
+		"                        \n"
+		"       press enter      \n"
+		"                        \n"
+		);
 	do {
 		c = getchar();
 	} while (c != '\n');
 }
 
-/*
- * Print manual.
- */
 void engine_c::print_man (void)
 {
 	unsigned int a0s = get_a0();
