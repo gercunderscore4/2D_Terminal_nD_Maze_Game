@@ -2,8 +2,8 @@
  * FILE:    m4.hpp
  * PURPOSE: 4D maze class
  * AUTHOR:  Geoffrey Card
- * DATE:    ????-??-?? - 2014-07-11
- * NOTES:   print_all cannot handle multiples of a dimension (an == am)
+ * DATE:    ????-??-?? - 
+ * NOTES:   
  */
 
 #ifndef ENGINE_H_
@@ -57,6 +57,11 @@ class engine_c: protected m4_c {
 		void tutorial (void);
 		
 	private:
+		//////////////// CONTROLS ////////////////
+		// user input
+		bool get_size_and_make (void);
+		bool control (void);
+		
 		//////////////// GRAPHICS ////////////////
 		void print_sight (void);
 		void print_clr (void);
@@ -92,11 +97,6 @@ class engine_c: protected m4_c {
 		bool disc_s2r3c1b3 (unsigned int aint[4]);
 		void print_disc (void);
 		void print_data (void);
-
-		//////////////// CONTROLS ////////////////
-		// user input
-		bool get_size_and_make (void);
-		bool control (void);
 };
 
 #endif /* ENGINE_H_ */
