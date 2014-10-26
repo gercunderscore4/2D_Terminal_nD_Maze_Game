@@ -1,6 +1,6 @@
 SHELL=/bin/sh
 CC=g++
-CFLAGS=-Wall -Wextra -std=c++11
+CFLAGS=-Wall -Wextra
 EXEC=m
 
 .PHONY: all
