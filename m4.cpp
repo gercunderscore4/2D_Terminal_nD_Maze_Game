@@ -2,7 +2,7 @@
  * FILE:    m4.cpp
  * PURPOSE: 4D maze class
  * AUTHOR:  Geoffrey Card
- * DATE:    ????-??-?? - 2014-07-19
+ * DATE:    ????-??-?? - 
  * NOTES:   print_all cannot handle multiples of a dimension (an == am)
  */
 
@@ -14,12 +14,8 @@ using namespace std;
 ////////////////            CLASS               ////////////////
 ////////////////////////////////////////////////////////////////
 
-/*
- * Class constructor.
- */
 m4_c::m4_c (void)
 {
-	// all blank
 	lenx = 0;
 	leny = 0;
 	lenz = 0;
@@ -45,33 +41,30 @@ m4_c::~m4_c (void)
 	degen();
 }
 
-void m4_c::makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws)
+void m4_c::make_maze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws)
 {
-	makeMaze(lxs, lys, lzs, lws, ALG_DEFAULT, S_DEFAULT, G_DEFAULT);
+	make_maze(lxs, lys, lzs, lws, ALG_DEFAULT, S_DEFAULT, G_DEFAULT);
 }
 
-void m4_c::makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs)
+void m4_c::make_maze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs)
 {
-	makeMaze(lxs, lys, lzs, lws, algs, S_DEFAULT, G_DEFAULT);
+	make_maze(lxs, lys, lzs, lws, algs, S_DEFAULT, G_DEFAULT);
 }
 
-void m4_c::makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs, disc_t sights)
+void m4_c::make_maze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs, disc_t sights)
 {
-	makeMaze(lxs, lys, lzs, lws, algs, sights, G_DEFAULT);
+	make_maze(lxs, lys, lzs, lws, algs, sights, G_DEFAULT);
 }
 
-void m4_c::makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs, disc_t sights, goal_t goal)
+void m4_c::make_maze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws, alg_t algs, disc_t sights, goal_t goal)
 {
 	// de-allocate any previous maze
-	printf("DEGEN\n");
 	degen();
 
 	// allocate
-	printf("GEN\n");
 	gen(lxs, lys, lzs, lws);
 
 	// build
-	printf("ALG\n");
 	switch (algs) {
 		case ALG_RAND:
 			random_build();
@@ -97,8 +90,7 @@ void m4_c::makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsig
 			break;
 	}
 
-	// set goal, ensure that it's within bounds
-	printf("GOAL\n");
+	// set goal
 	switch (goal) {
 		case G_SIMPLE:
 			set_goal_simple();
@@ -124,14 +116,11 @@ void m4_c::makeMaze (unsigned int lxs, unsigned int lys, unsigned int lzs, unsig
 	a2 = 2;
 	a3 = 3;
 
-	// dicovery method
-	printf("SIGHT\n");
+	// discovery method
 	sight = sights;
 	if (sight == S_FULL) {
 		set_flag_all(F_DISC);
 	}
-	
-	printf("DISC\n");
 	discover();
 }
 
@@ -243,6 +232,28 @@ unsigned int m4_c::get_w(void)
 	return w;
 }
 
+// axes
+unsigned int m4_c::get_a0(void)
+{
+	return a0;
+}
+
+unsigned int m4_c::get_a1(void)
+{
+	return a1;
+}
+
+unsigned int m4_c::get_a2(void)
+{
+	return a2;
+}
+
+unsigned int m4_c::get_a3(void)		
+{
+	return a3;
+}
+
+//////////////// SET ////////////////
 bool m4_c::set_x(unsigned int nx)
 {
 	if (valid(nx,y,z,w) == true) {
@@ -279,34 +290,10 @@ bool m4_c::set_w(unsigned int nw)
 	return false;
 }
 
-// axes
-unsigned int m4_c::get_a0(void)
-{
-	return a0;
-}
-
-unsigned int m4_c::get_a1(void)
-{
-	return a1;
-}
-
-unsigned int m4_c::get_a2(void)
-{
-	return a2;
-}
-
-unsigned int m4_c::get_a3(void)		
-{
-	return a3;
-}
-
 ////////////////////////////////////////////////////////////////
 ////////////////          ALLOCATION            ////////////////
 ////////////////////////////////////////////////////////////////
 
-/*
- * Class constructor.
- */
 void m4_c::gen (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned int lws)
 {
 	degen();
@@ -341,9 +328,6 @@ void m4_c::gen (unsigned int lxs, unsigned int lys, unsigned int lzs, unsigned i
 	}
 }
 
-/*
- * Class destructor.
- */
 void m4_c::degen(void)
 {
 	if (arry != NULL) {
@@ -481,66 +465,66 @@ void m4_c::cage(void)
  */
 void m4_c::disc_line_of_sight (void)
 {
+	unsigned int i;
+	
 	// current position
 	set_flag(F_DISC);
 	
-	unsigned int i=x, j=y, k=z, h=w;
-	
 	// X-
-	while (can_move(i,j,k,h,XD)) {
+	i = x;
+	while (can_move(i,y,z,w,XD)) {
 		i--;
-		set_flag(i,j,k,h,F_DISC);
+		set_flag(i,y,z,w,F_DISC);
 	}
-	i=x;
 	
 	// X+
-	while (can_move(i,j,k,h,XU)) {
+	i = x;
+	while (can_move(i,y,z,w,XU)) {
 		i++;
-		set_flag(i,j,k,h,F_DISC);
+		set_flag(i,y,z,w,F_DISC);
 	}
-	i=x;
 	
 	// Y-
-	while (can_move(i,j,k,h,YD)) {
-		j--;
-		set_flag(i,j,k,h,F_DISC);
+	i = y;
+	while (can_move(x,i,z,w,YD)) {
+		i--;
+		set_flag(x,i,z,w,F_DISC);
 	}
-	j=y;
 	
 	// Y+
-	while (can_move(i,j,k,h,YU)) {
-		j++;
-		set_flag(i,j,k,h,F_DISC);
+	i = y;
+	while (can_move(x,i,z,w,YU)) {
+		i++;
+		set_flag(x,i,z,w,F_DISC);
 	}
-	j=y;
 	
 	// Z-
-	while (can_move(i,j,k,h,ZD)) {
-		k--;
-		set_flag(i,j,k,h,F_DISC);
+	i = z;
+	while (can_move(x,y,i,w,ZD)) {
+		i--;
+		set_flag(x,y,i,w,F_DISC);
 	}
-	k=z;
 	
 	// Z+
-	while (can_move(i,j,k,h,ZU)) {
-		k++;
-		set_flag(i,j,k,h,F_DISC);
+	i = z;
+	while (can_move(x,y,i,w,ZU)) {
+		i++;
+		set_flag(x,y,i,w,F_DISC);
 	}
-	k=z;
 	
 	// W-
-	while (can_move(i,j,k,h,WD)) {
-		h--;
-		set_flag(i,j,k,h,F_DISC);
+	i = w;
+	while (can_move(x,y,z,i,WD)) {
+		i--;
+		set_flag(x,y,z,i,F_DISC);
 	}
-	h=w;
 	
 	// W+
-	while (can_move(i,j,k,h,WU)) {
-		h++;
-		set_flag(i,j,k,h,F_DISC);
+	i = w;
+	while (can_move(x,y,z,i,WU)) {
+		i++;
+		set_flag(x,y,z,i,F_DISC);
 	}
-	h=w;
 }
 
 /*
@@ -549,66 +533,67 @@ void m4_c::disc_line_of_sight (void)
  */
 void m4_c::disc_line_of_sight_ranged (unsigned int range)
 {
+	unsigned int i;
+	unsigned int ii;
+	
 	// current position
 	set_flag(F_DISC);
 	
-	unsigned int i=x, j=y, k=z, h=w;
-	
 	// X-
-	for (unsigned int ii=0; ii<range && can_move(i,j,k,h,XD); ii++) {
+	i = x;
+	for (ii = 0; ii < range && can_move(i,y,z,w,XD); ii++) {
 		i--;
-		set_flag(i,j,k,h,F_DISC);
+		set_flag(i,y,z,w,F_DISC);
 	}
-	i=x;
 	
 	// X+
-	for (unsigned int ii=0; ii<range && can_move(i,j,k,h,XU); ii++) {
+	i =x;
+	for (ii = 0; ii < range && can_move(i,y,z,w,XU); ii++) {
 		i++;
-		set_flag(i,j,k,h,F_DISC);
+		set_flag(i,y,z,w,F_DISC);
 	}
-	i=x;
 	
 	// Y-
-	for (unsigned int ii=0; ii<range && can_move(i,j,k,h,YD); ii++) {
-		j--;
-		set_flag(i,j,k,h,F_DISC);
+	i = y;
+	for (ii = 0; ii < range && can_move(x,i,z,w,YD); ii++) {
+		i--;
+		set_flag(x,i,z,w,F_DISC);
 	}
-	j=y;
 	
 	// Y+
-	for (unsigned int ii=0; ii<range && can_move(i,j,k,h,YU); ii++) {
-		j++;
-		set_flag(i,j,k,h,F_DISC);
+	i = y;
+	for (ii = 0; ii < range && can_move(x,i,z,w,YU); ii++) {
+		i++;
+		set_flag(x,i,z,w,F_DISC);
 	}
-	j=y;
 	
 	// Z-
-	for (unsigned int ii=0; ii<range && can_move(i,j,k,h,ZD); ii++) {
-		k--;
-		set_flag(i,j,k,h,F_DISC);
+	i = z;
+	for (ii = 0; ii < range && can_move(x,y,i,w,ZD); ii++) {
+		i--;
+		set_flag(x,y,i,w,F_DISC);
 	}
-	k=z;
 	
 	// Z+
-	for (unsigned int ii=0; ii<range && can_move(i,j,k,h,ZU); ii++) {
-		k++;
-		set_flag(i,j,k,h,F_DISC);
+	i = z;
+	for (ii = 0; ii < range && can_move(x,y,i,w,ZU); ii++) {
+		i++;
+		set_flag(x,y,i,w,F_DISC);
 	}
-	k=z;
 	
 	// W-
-	for (unsigned int ii=0; ii<range && can_move(i,j,k,h,WD); ii++) {
-		h--;
-		set_flag(i,j,k,h,F_DISC);
+	i = w;
+	for (ii = 0; ii < range && can_move(x,y,z,i,WD); ii++) {
+		i--;
+		set_flag(x,y,z,i,F_DISC);
 	}
-	h=w;
 	
 	// W+
-	for (unsigned int ii=0; ii<range && can_move(i,j,k,h,WU); ii++) {
-		h++;
-		set_flag(i,j,k,h,F_DISC);
+	i = w;
+	for (ii = 0; ii < range && can_move(x,y,z,i,WU); ii++) {
+		i++;
+		set_flag(x,y,z,i,F_DISC);
 	}
-	h=w;
 }
 
 /*
@@ -621,25 +606,33 @@ void m4_c::disc_ranged (unsigned int range)
 	unsigned int j;
 	unsigned int k;
 	unsigned int h;
+	unsigned int i_min;
+	unsigned int j_min;
+	unsigned int k_min;
+	unsigned int h_min;
+	unsigned int i_max;
+	unsigned int j_max;
+	unsigned int k_max;
+	unsigned int h_max;
 	
 	i = x;
 	j = y;
 	k = z;
 	h = w;
 	
-	unsigned int i_min = i-range > 0 ? i-range : 0;
-	unsigned int i_max = i+range < lenx ? i+range : lenx;
-	unsigned int j_min = j-range > 0 ? j-range : 0;
-	unsigned int j_max = j+range < leny ? j+range : leny;
-	unsigned int k_min = k-range > 0 ? k-range : 0;
-	unsigned int k_max = k+range < lenz ? k+range : lenz;
-	unsigned int h_min = h-range > 0 ? h-range : 0;
-	unsigned int h_max = h+range < lenw ? h+range : lenw;
+	i_min = i-range < lenx ? i-range : 0;
+	i_max = i+range < lenx ? i+range : lenx;
+	j_min = j-range < leny ? j-range : 0;
+	j_max = j+range < leny ? j+range : leny;
+	k_min = k-range < lenz ? k-range : 0;
+	k_max = k+range < lenz ? k+range : lenz;
+	h_min = h-range < lenw ? h-range : 0;
+	h_max = h+range < lenw ? h+range : lenw;
 	
-	for (unsigned int i=i_min; i<i_max; i++) {
-		for (unsigned int j=j_min; j<j_max; j++) {
-			for (unsigned int k=k_min; k<k_max; k++) {
-				for (unsigned int h=h_min; h<h_max; h++) {
+	for (i = i_min; i < i_max; i++) {
+		for (j = j_min; j < j_max; j++) {
+			for (k = k_min; k < k_max; k++) {
+				for (h = h_min; h < h_max; h++) {
 					set_flag(i,j,k,h,F_DISC);
 				}
 			}
@@ -656,62 +649,85 @@ void m4_c::disc_ranged (unsigned int range)
  */
 void m4_c::d_swap_abs (unsigned int d1, unsigned int d2)
 {
-	if (d1 == DIMX) {
-		if (d2 == DIMY) {
-			unsigned int temp = a0;
-			a0 = a1;
-			a1 = temp;
-		} else if (d2 == DIMZ) {
-			unsigned int temp = a0;
-			a0 = a2;
-			a2 = temp;
-		} else if (d2 == DIMW) {
-			unsigned int temp = a0;
-			a0 = a3;
-			a3 = temp;
-		}
-	} else if (d1 == DIMY) {
-		if (d2 == DIMX) {
-			unsigned int temp = a1;
-			a1 = a0;
-			a0 = temp;
-		} else if (d2 == DIMZ) {
-			unsigned int temp = a1;
-			a1 = a2;
-			a2 = temp;
-		} else if (d2 == DIMW) {
-			unsigned int temp = a1;
-			a1 = a3;
-			a3 = temp;
-		}
-	} else if (d1 == DIMZ) {
-		if (d2 == DIMX) {
-			unsigned int temp = a2;
-			a2 = a0;
-			a0 = temp;
-		} else if (d2 == DIMY) {
-			unsigned int temp = a2;
-			a2 = a1;
-			a1 = temp;
-		} else if (d2 == DIMW) {
-			unsigned int temp = a2;
-			a2 = a3;
-			a3 = temp;
-		}
-	} else if (d1 == DIMW) {
-		if (d2 == DIMX) {
-			unsigned int temp = a3;
-			a3 = a0;
-			a0 = temp;
-		} else if (d2 == DIMY) {
-			unsigned int temp = a3;
-			a3 = a1;
-			a1 = temp;
-		} else if (d2 == DIMZ) {
-			unsigned int temp = a3;
-			a3 = a2;
-			a2 = temp;
-		}
+	unsigned int temp;
+	
+	switch (d1) {
+		case DIMX:
+			switch (d2) {
+				case DIMY:
+					temp = a0;
+					a0 = a1;
+					a1 = temp;
+					break;
+				case DIMZ:
+					temp = a0;
+					a0 = a2;
+					a2 = temp;
+					break;
+				case DIMW:
+					temp = a0;
+					a0 = a3;
+					a3 = temp;
+					break;
+			}
+			break;
+		case DIMY:
+			switch (d2) {
+				case DIMX:
+					temp = a1;
+					a1 = a0;
+					a0 = temp;
+					break;
+				case DIMZ:
+					temp = a1;
+					a1 = a2;
+					a2 = temp;
+					break;
+				case DIMW:
+					temp = a1;
+					a1 = a3;
+					a3 = temp;
+					break;
+			}
+			break;
+		case DIMZ:
+			switch (d2) {
+				case DIMX:
+					temp = a2;
+					a2 = a0;
+					a0 = temp;
+					break;
+				case DIMY:
+					temp = a2;
+					a2 = a1;
+					a1 = temp;
+					break;
+				case DIMW:
+					temp = a2;
+					a2 = a3;
+					a3 = temp;
+					break;
+			}
+			break;
+		case DIMW:
+			switch (d2) {
+				case DIMX:
+					temp = a3;
+					a3 = a0;
+					a0 = temp;
+					break;
+				case DIMY:
+					temp = a3;
+					a3 = a1;
+					a1 = temp;
+					break;
+				case DIMZ:
+					temp = a3;
+					a3 = a2;
+					a2 = temp;
+					break;
+			}
+			break;
 	}
 }
 
@@ -783,41 +799,26 @@ void m4_c::d_swap_rel (unsigned int d1, unsigned int d2)
 ////////////////            CHECKS              ////////////////
 ////////////////////////////////////////////////////////////////
 
-/*
- * Is position valid?
- */
 bool inline m4_c::valid (void)
 {
-	return x < lenx && y < leny && z < lenz && w < lenw ? true : false;
+	return x < lenx && y < leny && z < lenz && w < lenw;
 }
 
-/*
- * Is position valid?
- */
 bool inline m4_c::valid (unsigned int i, unsigned int j, unsigned int k, unsigned int h)
 {
-	return i < lenx && j < leny && k < lenz && h < lenw ? true : false;
+	return i < lenx && j < leny && k < lenz && h < lenw;
 }
 
-/*
- * Set flag at position.
- */
 void inline m4_c::set_flag (node_t flag)
 {
 	if (valid(x,y,z,w)) arry[x][y][z][w] |= flag;
 }
 
-/*
- * Set flag at position.
- */
 void inline m4_c::set_flag (unsigned int i, unsigned int j, unsigned int k, unsigned int h, node_t flag)
 {
 	if (valid(i,j,k,h)) arry[i][j][k][h] |= flag;
 }
 
-/*
- * Set flag in all maze.
- */
 void inline m4_c::set_flag_all (node_t flag)
 {
 	for (unsigned int i = 0; i < lenx; i++) {
@@ -830,25 +831,17 @@ void inline m4_c::set_flag_all (node_t flag)
 		}
 	}
 }
-/*
- * Clear flag from position.
- */
+
 void inline m4_c::clear_flag (node_t flag)
 {
 	if (valid(x,y,z,w)) arry[x][y][z][w] &= ~flag;
 }
 
-/*
- * Clear flag from position.
- */
 void inline m4_c::clear_flag (unsigned int i, unsigned int j, unsigned int k, unsigned int h, node_t flag)
 {
 	if (valid(i,j,k,h)) arry[i][j][k][h] &= ~flag;
 }
 
-/*
- * Clear flag from all maze.
- */
 void inline m4_c::clear_flag_all (node_t flag)
 {
 	for (unsigned int i = 0; i < lenx; i++) {
@@ -935,7 +928,8 @@ bool inline m4_c::can_move (unsigned int i, unsigned int j, unsigned int k, unsi
 /*
  * HULK SMASH WALL FROM POSITION IN DIRECTION?!
  */
-bool m4_c::smash (dir_t dir) {
+bool m4_c::smash (dir_t dir)
+{
 	switch(dir) {
 		case XD:
 			if (valid(x-1,y,z,w)) {
@@ -1033,7 +1027,12 @@ bool m4_c::smash (dir_t dir) {
 /*
  * HULK SMASH WALL FROM POSITION IN DIRECTION?!
  */
-bool m4_c::smash (unsigned int i, unsigned int j, unsigned int k, unsigned int h, dir_t dir) {
+bool m4_c::smash (unsigned int i, unsigned int j, unsigned int k, unsigned int h, dir_t dir)
+{
+	if (!valid(i,j,k,h)) {
+		return false;
+	}
+	
 	switch(dir) {
 		case XD:
 			if (valid(i-1,j,k,h)) {
@@ -1275,98 +1274,85 @@ int m4_c::rec_depth_solve (void)
 //       breadth solve        //
 ////////////////////////////////
 
-int m4_c::breadth_solve (void)
+bool m4_c::breadth_solve (void)
 {
-	unsigned int xs;
-	unsigned int ys;
-	unsigned int zs;
-	unsigned int ws;
-	
-	// save position
-	xs = x;
-	ys = y;
-	zs = z;
-	ws = w;
-	
 	clear_flag_all(F_TEMP);
 	
-	queue <unsigned int> nodes;
-	nodes.push((unsigned int) (x<<24) + (y<<16) + (z<<8) + (w<<0));
+	d4_t temp;
+	queue <d4_t> nodes;
+	temp.x = x;
+	temp.y = y;
+	temp.z = z;
+	temp.w = w;
+	nodes.push(temp);
+	
 	while (!nodes.empty()) {
-		x = 0XFF & (nodes.front()>>24);
-		y = 0XFF & (nodes.front()>>16);
-		z = 0XFF & (nodes.front()>>8);
-		w = 0XFF & (nodes.front());
+		temp = nodes.front();
 		nodes.pop();
 		
-		//printf("%i %i %i %i\n",x,y,z,w);
-		
 		// goal reached
-		if (get_flag(F_GOAL)) {
+		if (get_flag(temp.x,temp.y,temp.z,temp.w,F_GOAL)) {
 			clear_flag_all(F_TEMP);
-			x = xs;
-			y = ys;
-			z = zs;
-			w = ws;
-			return 1;
+			return true;
 		}
 
 		// mark as visited
-		set_flag(x,y,z,w,F_TEMP);
-		// debug
-		//print_all();
+		set_flag(temp.x,temp.y,temp.z,temp.w,F_TEMP);
 		
 		// check
 		// XD
-		if (can_move(XD) && !get_flag(x-1,y,z,w,F_TEMP)) {
-			//printf("XD %i %i %i %i\n",x-1,y,z,w);
-			nodes.push((unsigned int) ((x-1)<<24) + (y<<16) + (z<<8) + (w<<0));
+		if (can_move(temp.x,temp.y,temp.z,temp.w,XD) && !get_flag(temp.x-1,temp.y,temp.z,temp.w,F_TEMP)) {
+			temp.x--;
+			nodes.push(temp);
+			temp.x++;
 		}
 		// XU
-		if (can_move(XU) && !get_flag(x+1,y,z,w,F_TEMP)) {
-			//printf("XU %i %i %i %i\n",x+1,y,z,w);
-			nodes.push((unsigned int) ((x+1)<<24) + (y<<16) + (z<<8) + (w<<0));
+		if (can_move(temp.x,temp.y,temp.z,temp.w,XU) && !get_flag(temp.x+1,temp.y,temp.z,temp.w,F_TEMP)) {
+			temp.x++;
+			nodes.push(temp);
+			temp.x--;
 		}
 		// YD
-		if (can_move(YD) && !get_flag(x,y-1,z,w,F_TEMP)) {
-			//printf("YD %i %i %i %i\n",x,y-1,z,w);
-			nodes.push((unsigned int) (x<<24) + ((y-1)<<16) + (z<<8) + (w<<0));
+		if (can_move(temp.x,temp.y,temp.z,temp.w,YD) && !get_flag(temp.x,temp.y-1,temp.z,temp.w,F_TEMP)) {
+			temp.y--;
+			nodes.push(temp);
+			temp.y++;
 		}
 		// YU
-		if (can_move(YU) && !get_flag(x,y+1,z,w,F_TEMP)) {
-			//printf("YU %i %i %i %i\n",x,y+1,z,w);
-			nodes.push((unsigned int) (x<<24) + ((y+1)<<16) + (z<<8) + (w<<0));
+		if (can_move(temp.x,temp.y,temp.z,temp.w,YU) && !get_flag(temp.x,temp.y+1,temp.z,temp.w,F_TEMP)) {
+			temp.y++;
+			nodes.push(temp);
+			temp.y--;
 		}
 		// ZD
-		if (can_move(ZD) && !get_flag(x,y,z-1,w,F_TEMP)) {
-			//printf("ZD %i %i %i %i\n",x,y,z-1,w);
-			nodes.push((unsigned int) (x<<24) + (y<<16) + ((z-1)<<8) + (w<<0));
+		if (can_move(temp.x,temp.y,temp.z,temp.w,ZD) && !get_flag(temp.x,temp.y,temp.z-1,temp.w,F_TEMP)) {
+			temp.z--;
+			nodes.push(temp);
+			temp.z++;
 		}
 		// ZU
-		if (can_move(ZU) && !get_flag(x,y,z+1,w,F_TEMP)) {
-			//printf("ZU %i %i %i %i\n",x,y,z+1,w);
-			nodes.push((unsigned int) (x<<24) + (y<<16) + ((z+1)<<8) + (w<<0));
+		if (can_move(temp.x,temp.y,temp.z,temp.w,ZU) && !get_flag(temp.x,temp.y,temp.z+1,temp.w,F_TEMP)) {
+			temp.z++;
+			nodes.push(temp);
+			temp.z--;
 		}
 		// WD
-		if (can_move(WD) && !get_flag(x,y,z,w-1,F_TEMP)) {
-			//printf("WD %i %i %i %i\n",x,y,z,w-1);
-			nodes.push((unsigned int) (x<<24) + (y<<16) + (z<<8) + ((w-1)<<0));
+		if (can_move(temp.x,temp.y,temp.z,temp.w,WD) && !get_flag(temp.x,temp.y,temp.z,temp.w-1,F_TEMP)) {
+			temp.w--;
+			nodes.push(temp);
+			temp.w++;
 		}
 		// WU
-		if (can_move(WU) && !get_flag(x,y,z,w+1,F_TEMP)) {
-			//printf("ZU %i %i %i %i\n",x,y,z,w+1);
-			nodes.push((unsigned int) (x<<24) + (y<<16) + (z<<8) + ((w+1)<<0));
+		if (can_move(temp.x,temp.y,temp.z,temp.w,WU) && !get_flag(temp.x,temp.y,temp.z,temp.w+1,F_TEMP)) {
+			temp.w++;
+			nodes.push(temp);
+			temp.w--;
 		}
 	}
 	
 	// reset
 	clear_flag_all(F_TEMP);
-	x = xs;
-	y = ys;
-	z = zs;
-	w = ws;
-	
-	return -1;
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1402,38 +1388,22 @@ void m4_c::random_build (void)
 
 void m4_c::depth_build (void)
 {
-	// build walls
 	cage();
 
-	// if position not valid, move to origin
-	if (!valid()) {
-		x = 0;
-		y = 0;
-		z = 0;
-		w = 0;
-	}
-
-	// smashy-smashy
 	rec_depth_build();
 
-	// remove flags
 	clear_flag_all(F_TEMP);
 }
 
-// set to valid position before
 void m4_c::rec_depth_build (void)
 {
-	// assume current position is valid
-
 	// mark as visited
 	set_flag(x,y,z,w,F_TEMP);
-	
-	//print_all();
-	//printf("%i %i %i %i\n",x,y,z,w);
 	
 	dir_t dirs[] = {XD,XU,YD,YU,ZD,ZU,WD,WU};
 	int ind = 0;
 	dir_t dir = 0;
+
 	for (int n = DIRS4; n > 0; n--) {
 		ind = rand() % n;
 		dir = dirs[ind];
@@ -1444,95 +1414,53 @@ void m4_c::rec_depth_build (void)
 			// move forward
 			x--;
 			// recusrive call
-			//printf("XD\n");
 			rec_depth_build();
 			// move back
 			x++;
 		}
 		
-		// XU
-		// if node is available and wall can be smashed
 		if (dir==XU && valid(x+1,y,z,w) && !get_flag(x+1,y,z,w,F_TEMP) && smash(XU)) {
-			// move forward
 			x++;
-			// recusrive call
-			//printf("XU\n");
 			rec_depth_build();
-			// move back
 			x--;
 		}
 		
-		// YD
-		// if node is available and wall can be smashed
 		if (dir==YD && valid(x,y-1,z,w) && !get_flag(x,y-1,z,w,F_TEMP) && smash(YD)) {
-			// move forward
 			y--;
-			// recusrive call
-			//printf("YD\n");
 			rec_depth_build();
-			// move back
 			y++;
 		}
 		
-		// YU
-		// if node is available and wall can be smashed
 		if (dir==YU && valid(x,y+1,z,w) && !get_flag(x,y+1,z,w,F_TEMP) && smash(YU)) {
-			// move forward
 			y++;
-			// recusrive call
-			//printf("YU\n");
 			rec_depth_build();
-			// move back
 			y--;
 		}
 		
-		// ZD
-		// if node is available and wall can be smashed
 		if (dir==ZD && valid(x,y,z-1,w) && !get_flag(x,y,z-1,w,F_TEMP) && smash(ZD)) {
-			// move forward
 			z--;
-			// recusrive call
-			//printf("ZD\n");
 			rec_depth_build();
-			// move back
 			z++;
 		}
 		
-		// ZU
-		// if node is available and wall can be smashed
 		if (dir==ZU && valid(x,y,z+1,w) && !get_flag(x,y,z+1,w,F_TEMP) && smash(ZU)) {
-			// move forward
 			z++;
-			// recusrive call
-			//printf("ZU\n");
 			rec_depth_build();
-			// move back
 			z--;
 		}
 		
-		// WD
-		// if node is available and wall can be smashed
 		if (dir==WD && valid(x,y,z,w-1) && !get_flag(x,y,z,w-1,F_TEMP) && smash(WD)) {
-			// move forward
 			w--;
-			// recusrive call
-			//printf("WD\n");
 			rec_depth_build();
-			// move back
 			w++;
 		}
 		
-		// WU
-		// if node is available and wall can be smashed
 		if (dir==WU && valid(x,y,z,w+1) && !get_flag(x,y,z,w+1,F_TEMP) && smash(WU)) {
-			// move forward
 			w++;
-			// recusrive call
-			//printf("WU\n");
 			rec_depth_build();
-			// move back
 			w--;
 		}
+
 		// swap remaining directions
 		dirs[ind] = dirs[n-1];
 	}
@@ -1555,14 +1483,6 @@ void m4_c::breadth_build (void)
 	// build walls
 	cage();
 
-	// if position not valid, move to origin
-	if (!valid()) {
-		x = 0;
-		y = 0;
-		z = 0;
-		w = 0;
-	}
-	
 	// save position
 	xs = x;
 	ys = y;
@@ -1575,8 +1495,8 @@ void m4_c::breadth_build (void)
 
 	clear_flag_all(F_TEMP);
 	
-	vector<prim> nodes;
-	prim temp;
+	vector<prim_t> nodes;
+	prim_t temp;
 
 	// visited origin
 	set_flag(x,y,z,w,F_TEMP);
@@ -1667,10 +1587,10 @@ void m4_c::breadth_build (void)
 	while (!nodes.empty()) {
 				
 		// choose random node
-		//int r = rand() % nodes.size();
+		int r = rand() % nodes.size();
 		
-		float f = ((float) rand()/RAND_MAX ) * 10; // warning: magic number
-		unsigned int r = floor( nodes.size() * (1-exp(-f)) );
+		//float f = ((float) rand()/RAND_MAX ) * 10; // warning: magic number
+		//unsigned int r = floor( nodes.size() * (1-exp(-f)) );
 		//printf("%7.3f %3i %3lu\n", f, r, nodes.size());
 		
 		// collect data
@@ -1683,10 +1603,6 @@ void m4_c::breadth_build (void)
 		// break wall
 		//bool hulk = 
 		smash(dir);
-		
-		// debug
-		//printf("%i %i %i %X, %c, %i\n", x,y,z,w,dir,hulk);
-		//print_all();
 		
 		// swap and remove
 		nodes[r].x = nodes[nodes.size()-1].x;
@@ -2092,10 +2008,10 @@ bool m4_c::kill_node (void)
 //       breadth solve        //
 ////////////////////////////////
 
-d4 m4_c::longest_solve (void)
+d4_t m4_c::longest_solve (void)
 {
-	d4 temp;
-	queue <d4> nodes;
+	d4_t temp;
+	queue <d4_t> nodes;
 	
 	clear_flag_all(F_TEMP);
 	
@@ -2202,20 +2118,21 @@ d4 m4_c::longest_solve (void)
 
 void m4_c::set_goal_simple (void)
 {
+	set_flag(0,0,0,0,F_STAR);
+	
+	set_flag(lenx-1,leny-1,lenz-1,lenw-1,F_GOAL);
+
 	x = 0;
 	y = 0;
 	z = 0;
 	w = 0;
-	
-	set_flag(x,y,z,w,F_STAR);
-	
-	set_flag(lenx-1,leny-1,lenz-1,lenw-1,F_GOAL);
 }
 
 void m4_c::set_goal_long (void)
 {
-	d4 temp;
+	d4_t temp;
 	
+	set_flag(0,0,0,0,F_STAR);	
 	x = 0;
 	y = 0;
 	z = 0;
@@ -2223,24 +2140,18 @@ void m4_c::set_goal_long (void)
 	
 	// ending block
 	temp = longest_solve();
-	x = temp.x;
-	y = temp.y;
-	z = temp.z;
-	w = temp.w;
-	set_flag(x,y,z,w,F_GOAL);	
+	set_flag(temp.x,temp.y,temp.z,temp.w,F_GOAL);	
 	
 	// starting block
 	x = 0;
 	y = 0;
 	z = 0;
 	w = 0;
-	
-	set_flag(x,y,z,w,F_STAR);	
 }
 
 void m4_c::set_goal_long_rand (void)
 {
-	d4 temp;
+	d4_t temp;
 	unsigned int xs;
 	unsigned int ys;
 	unsigned int zs;
@@ -2251,6 +2162,8 @@ void m4_c::set_goal_long_rand (void)
 	y = rand() % leny;
 	z = rand() % lenz;
 	w = rand() % lenw;
+	// starting block
+	set_flag(F_STAR);	
 
 	// save original coordinates
 	xs = x;
@@ -2260,14 +2173,9 @@ void m4_c::set_goal_long_rand (void)
 	
 	// ending block
 	temp = longest_solve();
-	x = temp.x;
-	y = temp.y;
-	z = temp.z;
-	w = temp.w;
-	set_flag(x,y,z,w,F_GOAL);	
+	set_flag(temp.x,temp.y,temp.z,temp.w,F_GOAL);	
 	
-	// starting block
-	set_flag(xs,ys,zs,ws,F_STAR);	
+	// load original points
 	x = xs;
 	y = ys;
 	z = zs;
@@ -2276,7 +2184,7 @@ void m4_c::set_goal_long_rand (void)
 
 void m4_c::set_goal_longest (void)
 {
-	d4 temp;
+	d4_t temp;
 	
 	x = rand() % lenx;
 	y = rand() % leny;
@@ -2285,17 +2193,17 @@ void m4_c::set_goal_longest (void)
 	
 	// ending block
 	temp = longest_solve();
+	set_flag(x,y,z,w,F_GOAL);	
 	x = temp.x;
 	y = temp.y;
 	z = temp.z;
 	w = temp.w;
-	set_flag(x,y,z,w,F_GOAL);	
 	
 	// starting block
 	temp = longest_solve();
+	set_flag(x,y,z,w,F_STAR);	
 	x = temp.x;
 	y = temp.y;
 	z = temp.z;
 	w = temp.w;
-	set_flag(x,y,z,w,F_STAR);	
 }
