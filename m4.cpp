@@ -1388,11 +1388,15 @@ void m4_c::random_build (void)
 
 void m4_c::depth_build (void)
 {
+	x = 0, y = 0, z = 0, w = 0;
+
 	cage();
 
 	rec_depth_build();
 
 	clear_flag_all(F_TEMP);
+
+	x = 0, y = 0, z = 0, w = 0;
 }
 
 void m4_c::rec_depth_build (void)
@@ -1460,11 +1464,11 @@ void m4_c::rec_depth_build (void)
 			rec_depth_build();
 			w--;
 		}
-
+		
 		// swap remaining directions
 		dirs[ind] = dirs[n-1];
 	}
-		
+	
 	// failed
 	return;
 }
@@ -1475,19 +1479,12 @@ void m4_c::rec_depth_build (void)
 
 void m4_c::breadth_build (void)
 {
-	unsigned int xs;
-	unsigned int ys;
-	unsigned int zs;
-	unsigned int ws;
+	x = 0, y = 0, z = 0, w = 0;
 
 	// build walls
 	cage();
 
 	// save position
-	xs = x;
-	ys = y;
-	zs = z;
-	ws = w;
 	x = rand() % lenx;
 	y = rand() % leny;
 	z = rand() % lenz;
@@ -1700,10 +1697,8 @@ void m4_c::breadth_build (void)
 	
 	// reset
 	clear_flag_all(F_TEMP);
-	x = xs;
-	y = ys;
-	z = zs;
-	w = ws;
+	
+	x = 0, y = 0, z = 0, w = 0;
 }
 
 ////////////////////////////////
@@ -1712,10 +1707,8 @@ void m4_c::breadth_build (void)
 
 void m4_c::hunt_and_kill_build (void)
 {
-	unsigned int xs;
-	unsigned int ys;
-	unsigned int zs;
-	unsigned int ws;	
+	unsigned int xs, ys, zs, ws;
+	
 	unsigned int len_max;
 	
 	// get maximum unidirectional length of maze
@@ -1732,11 +1725,8 @@ void m4_c::hunt_and_kill_build (void)
 		w = 0;
 	}
 	
-	// save original coordinates
-	xs = x;
-	ys = y;
-	zs = z;
-	ws = w;
+	// save location
+	xs = x, ys = y, zs = z, ws = w;
 	
 	// mark starting point
 	set_flag(F_TEMP);
@@ -1786,18 +1776,13 @@ void m4_c::hunt_and_kill_build (void)
 	
 	// reset
 	clear_flag_all(F_TEMP);
-	x = xs;
-	y = ys;
-	z = zs;
-	w = ws;
+
+	x = xs, y = ys, z = zs, w = ws;
 }
 
 void m4_c::hunt_and_kill_build (unsigned int len)
 {
-	unsigned int xs;
-	unsigned int ys;
-	unsigned int zs;
-	unsigned int ws;	
+	unsigned int xs, ys, zs, ws;
 
 	if (len <= 0) {
 		hunt_and_kill_build();
@@ -1813,12 +1798,9 @@ void m4_c::hunt_and_kill_build (unsigned int len)
 		z = 0;
 		w = 0;
 	}
-
-	// save original coordinates
-	xs = x;
-	ys = y;
-	zs = z;
-	ws = w;
+	
+	// save location
+	xs = x, ys = y, zs = z, ws = w;
 	
 	// mark starting point
 	set_flag(F_TEMP);
@@ -1867,10 +1849,8 @@ void m4_c::hunt_and_kill_build (unsigned int len)
 	
 	// reset
 	clear_flag_all(F_TEMP);
-	x = xs;
-	y = ys;
-	z = zs;
-	w = ws;
+	
+	x = xs, y = ys, z= zs, w = ws;
 }
 
 bool m4_c::kill (void)
@@ -2152,10 +2132,7 @@ void m4_c::set_goal_long (void)
 void m4_c::set_goal_long_rand (void)
 {
 	d4_t temp;
-	unsigned int xs;
-	unsigned int ys;
-	unsigned int zs;
-	unsigned int ws;	
+	unsigned int xs, ys, zs, ws;
 
 	// choose a random point
 	x = rand() % lenx;
@@ -2166,20 +2143,14 @@ void m4_c::set_goal_long_rand (void)
 	set_flag(F_STAR);	
 
 	// save original coordinates
-	xs = x;
-	ys = y;
-	zs = z;
-	ws = w;
+	xs = x, ys = y, zs = z, ws = w;
 	
 	// ending block
 	temp = longest_solve();
 	set_flag(temp.x,temp.y,temp.z,temp.w,F_GOAL);	
 	
 	// load original points
-	x = xs;
-	y = ys;
-	z = zs;
-	w = ws;
+	x = xs, y = ys, z = zs, w = ws;
 }
 
 void m4_c::set_goal_longest (void)
