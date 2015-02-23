@@ -275,6 +275,21 @@ bool engine_c::control (void)
 				break;
 			*/
 			case DSWAPX:
+				d_swap_rel(DIMX, DIMX);				
+				break;
+			case DSWAPY:
+				d_swap_rel(DIMX, DIMY);				
+				break;
+			case DSWAPZ:
+				d_swap_rel(DIMX, DIMZ);				
+				break;
+			case DSWAPW:
+				d_swap_rel(DIMX, DIMW);				
+				break;
+			default:
+				break;
+			/*
+			case DSWAPX:
 				d_swap_abs(DIMX, DIMX);				
 				break;
 			case DSWAPY:
@@ -288,6 +303,7 @@ bool engine_c::control (void)
 				break;
 			default:
 				break;
+			*/
 		}
 		
 		if (get_flag(F_GOAL)) {
